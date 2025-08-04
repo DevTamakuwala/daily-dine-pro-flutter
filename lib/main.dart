@@ -1,5 +1,11 @@
 import 'dart:math';
+import 'package:dailydine/Screens/Auth/LoginForm.dart';
+import 'package:dailydine/widgets/BuildFlipButton.dart';
+import 'package:dailydine/widgets/BuildSubmitButton.dart';
+import 'package:dailydine/widgets/BuildTextFormField.dart';
 import 'package:flutter/material.dart';
+
+import 'Screens/Auth/SignupForm.dart';
 
 // Main function to run the app
 void main() {
@@ -185,228 +191,149 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           color: Colors.white.withOpacity(0.95),
         ),
         child: isLogin
-            ? _LoginForm(onFlip: _flipCard)
-            : _SignupForm(onFlip: _flipCard),
+            ? LoginForm(onFlip: _flipCard)
+            : SignupForm(onFlip: _flipCard),
       ),
-    );
-  }
-}
-
-// --- LOGIN FORM WIDGET ---
-class _LoginForm extends StatelessWidget {
-  final VoidCallback onFlip;
-  _LoginForm({required this.onFlip});
-
-  final _loginEmailController = TextEditingController();
-  final _loginPasswordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: const ValueKey('loginForm'),
-      children: [
-        const Text("Welcome Back", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Text("Log in to your account", style: TextStyle(color: Colors.grey.shade600)),
-        const SizedBox(height: 24),
-        _buildTextFormField(controller: _loginEmailController, label: "Email", icon: Icons.email_outlined),
-        const SizedBox(height: 16),
-        _buildTextFormField(controller: _loginPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true),
-        const SizedBox(height: 24),
-        _buildSubmitButton(label: "Login", onPressed: () {}),
-        const SizedBox(height: 16),
-        _buildFlipButton(label: "Don't have an account? Sign Up", onFlip: onFlip),
-      ],
     );
   }
 }
 
 // --- SIGNUP FORM WIDGET ---
-class _SignupForm extends StatefulWidget {
-  final VoidCallback onFlip;
-  const _SignupForm({required this.onFlip});
-
-  @override
-  State<_SignupForm> createState() => _SignupFormState();
-}
-
-class _SignupFormState extends State<_SignupForm> {
-  // State and controllers from your provided UI
-  final _messOwnerFormKey = GlobalKey<FormState>();
-  final _customerFormKey = GlobalKey<FormState>();
-  UserType _selectedUserType = UserType.messOwner;
-
-  // Mess Owner Controllers
-  final _messNameController = TextEditingController();
-  final _ownerNameController = TextEditingController(); // New
-  final _addressController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _ownerPasswordController = TextEditingController(); // New
-  final _ownerConfirmPasswordController = TextEditingController(); // New
-
-  // Customer Controllers
-  final _customerNameController = TextEditingController();
-  final _customerPasswordController = TextEditingController();
-  final _customerConfirmPasswordController = TextEditingController();
-
-  // Common Controllers
-  final _signupPhoneController = TextEditingController();
-  final _signupEmailController = TextEditingController();
-
-
-  @override
-  void dispose() {
-    _messNameController.dispose();
-    _ownerNameController.dispose(); // New
-    _addressController.dispose();
-    _cityController.dispose();
-    _signupPhoneController.dispose();
-    _signupEmailController.dispose();
-    _customerNameController.dispose();
-    _ownerPasswordController.dispose(); // New
-    _ownerConfirmPasswordController.dispose(); // New
-    _customerPasswordController.dispose();
-    _customerConfirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      key: const ValueKey('signupForm'),
-      children: [
-        const Text("Create Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        ToggleButtons(
-          isSelected: [_selectedUserType == UserType.messOwner, _selectedUserType == UserType.customer],
-          onPressed: (index) {
-            setState(() {
-              _selectedUserType = index == 0 ? UserType.messOwner : UserType.customer;
-            });
-          },
-          borderRadius: BorderRadius.circular(8),
-          selectedColor: Colors.white,
-          fillColor: Colors.orange.shade700,
-          color: Colors.orange.shade700,
-          borderColor: Colors.orange.shade700,
-          selectedBorderColor: Colors.orange.shade700,
-          children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Mess Owner")),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Customer")),
-          ],
-        ),
-        const SizedBox(height: 16),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-          child: _selectedUserType == UserType.messOwner
-              ? _buildMessOwnerSubForm()
-              : _buildCustomerSubForm(),
-        ),
-        const SizedBox(height: 16),
-        _buildFlipButton(label: "Already have an account? Login", onFlip: widget.onFlip),
-      ],
-    );
-  }
-
-  Widget _buildMessOwnerSubForm() {
-    return Form(
-      key: _messOwnerFormKey,
-      child: Column(
-        key: const ValueKey('messOwnerForm'),
-        children: [
-          _buildTextFormField(controller: _messNameController, label: "Mess Name", icon: Icons.storefront, validator: (v) => v!.isEmpty ? "Mess Name is required" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _ownerNameController, label: "Owner's Full Name", icon: Icons.person_outline, validator: (v) => v!.isEmpty ? "Owner's Name is required" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _addressController, label: "Address", icon: Icons.location_on_outlined, validator: (v) => v!.isEmpty ? "Address is required" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _cityController, label: "City", icon: Icons.location_city, validator: (v) => v!.isEmpty ? "City is required" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _signupPhoneController, label: "Phone Number", icon: Icons.phone_outlined, keyboardType: TextInputType.phone, validator: (v) => v!.length < 10 ? "Enter a valid phone number" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _signupEmailController, label: "Email Address", icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress, validator: (v) => !RegExp(r'\S+@\S+\.\S+').hasMatch(v!) ? "Enter a valid email" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _ownerPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v!.length < 6 ? "Password must be at least 6 characters" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _ownerConfirmPasswordController, label: "Confirm Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v != _ownerPasswordController.text ? "Passwords do not match" : null),
-          const SizedBox(height: 20),
-          _buildSubmitButton(label: "Sign Up as Owner", onPressed: () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCustomerSubForm() {
-    return Form(
-      key: _customerFormKey,
-      child: Column(
-        key: const ValueKey('customerForm'),
-        children: [
-          _buildTextFormField(controller: _customerNameController, label: "Full Name", icon: Icons.person_outline, validator: (v) => v!.isEmpty ? "Full Name is required" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _signupEmailController, label: "Email Address", icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress, validator: (v) => !RegExp(r'\S+@\S+\.\S+').hasMatch(v!) ? "Enter a valid email" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _customerPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v!.length < 6 ? "Password must be at least 6 characters" : null),
-          const SizedBox(height: 12),
-          _buildTextFormField(controller: _customerConfirmPasswordController, label: "Confirm Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v != _customerPasswordController.text ? "Passwords do not match" : null),
-          const SizedBox(height: 20),
-          _buildSubmitButton(label: "Sign Up as Customer", onPressed: () {}),
-        ],
-      ),
-    );
-  }
-}
-
-// --- COMMON HELPER WIDGETS ---
-
-Widget _buildTextFormField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  bool obscureText = false,
-  TextInputType? keyboardType,
-  String? Function(String?)? validator,
-}) {
-  return TextFormField(
-    controller: controller,
-    obscureText: obscureText,
-    keyboardType: keyboardType,
-    validator: validator,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 20),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      filled: true,
-      fillColor: Colors.grey.shade100,
-      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-    ),
-  );
-}
-
-Widget _buildSubmitButton({required String label, required VoidCallback onPressed}) {
-  return SizedBox(
-    width: double.infinity,
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: Colors.orange.shade700,
-        foregroundColor: Colors.white,
-      ),
-      onPressed: onPressed,
-      child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-    ),
-  );
-}
-
-Widget _buildFlipButton({required String label, required VoidCallback onFlip}) {
-  return TextButton(
-    onPressed: onFlip,
-    child: Text(label, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
-  );
-}
-
+// class _SignupForm extends StatefulWidget {
+//   final VoidCallback onFlip;
+//   const _SignupForm({required this.onFlip});
+//
+//   @override
+//   State<_SignupForm> createState() => _SignupFormState();
+// }
+//
+// class _SignupFormState extends State<_SignupForm> {
+//   // State and controllers from your provided UI
+//   final _messOwnerFormKey = GlobalKey<FormState>();
+//   final _customerFormKey = GlobalKey<FormState>();
+//   UserType _selectedUserType = UserType.messOwner;
+//
+//   // Mess Owner Controllers
+//   final _messNameController = TextEditingController();
+//   final _ownerNameController = TextEditingController(); // New
+//   final _addressController = TextEditingController();
+//   final _cityController = TextEditingController();
+//   final _ownerPasswordController = TextEditingController(); // New
+//   final _ownerConfirmPasswordController = TextEditingController(); // New
+//
+//   // Customer Controllers
+//   final _customerNameController = TextEditingController();
+//   final _customerPasswordController = TextEditingController();
+//   final _customerConfirmPasswordController = TextEditingController();
+//
+//   // Common Controllers
+//   final _signupPhoneController = TextEditingController();
+//   final _signupEmailController = TextEditingController();
+//
+//
+//   @override
+//   void dispose() {
+//     _messNameController.dispose();
+//     _ownerNameController.dispose(); // New
+//     _addressController.dispose();
+//     _cityController.dispose();
+//     _signupPhoneController.dispose();
+//     _signupEmailController.dispose();
+//     _customerNameController.dispose();
+//     _ownerPasswordController.dispose(); // New
+//     _ownerConfirmPasswordController.dispose(); // New
+//     _customerPasswordController.dispose();
+//     _customerConfirmPasswordController.dispose();
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       key: const ValueKey('signupForm'),
+//       children: [
+//         const Text("Create Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+//         const SizedBox(height: 12),
+//         ToggleButtons(
+//           isSelected: [_selectedUserType == UserType.messOwner, _selectedUserType == UserType.customer],
+//           onPressed: (index) {
+//             setState(() {
+//               _selectedUserType = index == 0 ? UserType.messOwner : UserType.customer;
+//             });
+//           },
+//           borderRadius: BorderRadius.circular(8),
+//           selectedColor: Colors.white,
+//           fillColor: Colors.orange.shade700,
+//           color: Colors.orange.shade700,
+//           borderColor: Colors.orange.shade700,
+//           selectedBorderColor: Colors.orange.shade700,
+//           children: const [
+//             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Mess Owner")),
+//             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Customer")),
+//           ],
+//         ),
+//         const SizedBox(height: 16),
+//         AnimatedSwitcher(
+//           duration: const Duration(milliseconds: 300),
+//           transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+//           child: _selectedUserType == UserType.messOwner
+//               ? _buildMessOwnerSubForm()
+//               : _buildCustomerSubForm(),
+//         ),
+//         const SizedBox(height: 16),
+//         buildFlipButton(label: "Already have an account? Login", onFlip: widget.onFlip),
+//       ],
+//     );
+//   }
+//
+//   Widget _buildMessOwnerSubForm() {
+//     return Form(
+//       key: _messOwnerFormKey,
+//       child: Column(
+//         key: const ValueKey('messOwnerForm'),
+//         children: [
+//           buildTextFormField(controller: _messNameController, label: "Mess Name", icon: Icons.storefront, validator: (v) => v!.isEmpty ? "Mess Name is required" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _ownerNameController, label: "Owner's Full Name", icon: Icons.person_outline, validator: (v) => v!.isEmpty ? "Owner's Name is required" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _addressController, label: "Address", icon: Icons.location_on_outlined, validator: (v) => v!.isEmpty ? "Address is required" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _cityController, label: "City", icon: Icons.location_city, validator: (v) => v!.isEmpty ? "City is required" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _signupPhoneController, label: "Phone Number", icon: Icons.phone_outlined, keyboardType: TextInputType.phone, validator: (v) => v!.length < 10 ? "Enter a valid phone number" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _signupEmailController, label: "Email Address", icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress, validator: (v) => !RegExp(r'\S+@\S+\.\S+').hasMatch(v!) ? "Enter a valid email" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _ownerPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v!.length < 6 ? "Password must be at least 6 characters" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _ownerConfirmPasswordController, label: "Confirm Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v != _ownerPasswordController.text ? "Passwords do not match" : null),
+//           const SizedBox(height: 20),
+//           buildSubmitButton(label: "Sign Up as Owner", onPressed: () {}),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildCustomerSubForm() {
+//     return Form(
+//       key: _customerFormKey,
+//       child: Column(
+//         key: const ValueKey('customerForm'),
+//         children: [
+//           buildTextFormField(controller: _customerNameController, label: "Full Name", icon: Icons.person_outline, validator: (v) => v!.isEmpty ? "Full Name is required" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _signupEmailController, label: "Email Address", icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress, validator: (v) => !RegExp(r'\S+@\S+\.\S+').hasMatch(v!) ? "Enter a valid email" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _customerPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v!.length < 6 ? "Password must be at least 6 characters" : null),
+//           const SizedBox(height: 12),
+//           buildTextFormField(controller: _customerConfirmPasswordController, label: "Confirm Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v != _customerPasswordController.text ? "Passwords do not match" : null),
+//           const SizedBox(height: 20),
+//           buildSubmitButton(label: "Sign Up as Customer", onPressed: () {}),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // --- BACKGROUND PARTICLE ANIMATION ---
 
