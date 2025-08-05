@@ -1,4 +1,4 @@
-package com.example.dailydine;
+package io.github.devtamakuwala;
 
 import io.flutter.embedding.android.FlutterActivity;
 
