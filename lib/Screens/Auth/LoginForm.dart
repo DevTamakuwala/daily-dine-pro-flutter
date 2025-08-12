@@ -48,10 +48,12 @@ class LoginForm extends StatelessWidget {
               String email = _loginEmailController.text;
               String password = await encrypt(_loginPasswordController.text);
               String apiUrl = '${url}auth/login';
+              print("API getting called $url");
               final response = await http.post(
                 Uri.parse(apiUrl),
                 headers: {
                   "Content-Type": "application/json",
+                  "Authorization": "Bearer $password"
                 },
                 body: jsonEncode({
                   "email": email,
@@ -59,11 +61,15 @@ class LoginForm extends StatelessWidget {
                 }),
               );
 
+              print("API called");
+
               if (response.statusCode == 302) {
+                print("Login Successful");
+                print(response.body);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (builder) => Hello(),
+                    builder: (builder) => Hello(token : response.body),
                   ),
                 );
               } else {
