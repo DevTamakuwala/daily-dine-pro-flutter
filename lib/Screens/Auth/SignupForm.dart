@@ -18,7 +18,8 @@ class _SignupFormState extends State<SignupForm> {
   // State and controllers from your provided UI
   final _messOwnerFormKey = GlobalKey<FormState>();
   final _customerFormKey = GlobalKey<FormState>();
-  UserType _selectedUserType = UserType.MessOwner;
+  // CHANGE: The default user type is changed to "Customer" to prioritize the more common user type.
+  UserType _selectedUserType = UserType.Customer;
 
   // Mess Owner Controllers
   final _messNameController = TextEditingController();
@@ -63,10 +64,11 @@ class _SignupFormState extends State<SignupForm> {
         const Text("Create Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         ToggleButtons(
-          isSelected: [_selectedUserType == UserType.MessOwner, _selectedUserType == UserType.Customer],
+          // CHANGE: The order of the toggle buttons is changed to reflect the new default user type.
+          isSelected: [_selectedUserType == UserType.Customer, _selectedUserType == UserType.MessOwner],
           onPressed: (index) {
             setState(() {
-              _selectedUserType = index == 0 ? UserType.MessOwner : UserType.Customer;
+              _selectedUserType = index == 0 ? UserType.Customer : UserType.MessOwner;
             });
           },
           borderRadius: BorderRadius.circular(8),
@@ -76,17 +78,18 @@ class _SignupFormState extends State<SignupForm> {
           borderColor: Colors.orange.shade700,
           selectedBorderColor: Colors.orange.shade700,
           children: const [
-            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Mess Owner")),
             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Customer")),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Mess Owner")),
           ],
         ),
         const SizedBox(height: 16),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-          child: _selectedUserType == UserType.MessOwner
-              ? _buildMessOwnerSubForm()
-              : _buildCustomerSubForm(),
+          // CHANGE: The default form is changed to the customer form.
+          child: _selectedUserType == UserType.Customer
+              ? _buildCustomerSubForm()
+              : _buildMessOwnerSubForm(),
         ),
         const SizedBox(height: 16),
         buildFlipButton(label: "Already have an account? Login", onFlip: widget.onFlip),

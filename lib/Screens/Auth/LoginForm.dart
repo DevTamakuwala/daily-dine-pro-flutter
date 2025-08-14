@@ -47,48 +47,17 @@ class LoginForm extends StatelessWidget {
         buildSubmitButton(
             label: "Login",
             onPressed: () async {
+              print("Login tapped");
               String email = _loginEmailController.text;
-              String password = await encrypt(_loginPasswordController.text);
-              String apiUrl = '${url}auth/login';
-              print("API getting called $url");
-              final response = await http.post(
-                Uri.parse(apiUrl),
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": "Bearer $password"
-                },
-                body: jsonEncode({
-                  "email": email,
-                  "password": password,
-                }),
-              );
-
-              print("API called");
-
-              if (response.statusCode == 302) {
-                print("Login Successful");
-                print(response.body);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (builder) => Hello(token : response.body),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(response.body),
-                  ),
-                );
-                print('Failed: ${response.statusCode} - ${response.body}');
-              }
+              String password = _loginPasswordController.text;
+              await handleLogin(email, password, context);
             }),
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
             onPressed: () {
-              // For example, navigate to a ForgotPasswordScreen.
+              // CHANGE: Navigate to the ForgotPasswordScreen when the "Forgot Password?" button is tapped.
               print("Forgot Password tapped!");
               Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
             },
@@ -102,5 +71,38 @@ class LoginForm extends StatelessWidget {
             label: "Don't have an account? Sign Up", onFlip: onFlip),
       ],
     );
+  }
+
+  Future<void> handleLogin(String email, String password, BuildContext context) async {
+    print("Handler called");
+    String encryptedPassword = await encrypt(password);
+    String apiUrl = '${url}auth/login';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $encryptedPassword"
+      },
+      body: jsonEncode({
+        "email": email,
+        "password": encryptedPassword,
+      }),
+    );
+
+    if (response.statusCode == 302) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (builder) => Hello(token : response.body),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.body),
+        ),
+      );
+      // print('Failed: ${response.statusCode} - ${response.body}');
+    }
   }
 }
