@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:dailydine/Screens/Auth/LoginForm.dart';
-import 'package:dailydine/widgets/BuildFlipButton.dart';
-import 'package:dailydine/widgets/BuildSubmitButton.dart';
-import 'package:dailydine/widgets/BuildTextFormField.dart';
+import 'package:dailydine/Screens/Auth/SignupForm.dart';
 import 'package:flutter/material.dart';
-
-import 'Screens/Auth/SignupForm.dart';
+// Note: You might need to create these widget files if they don't exist
+// import 'package:dailydine/widgets/BuildFlipButton.dart';
+// import 'package:dailydine/widgets/BuildSubmitButton.dart';
+// import 'package:dailydine/widgets/BuildTextFormField.dart';
 
 // Main function to run the app
 void main() {
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Daily Dine Pro',
+      title: 'Daily Dine ',
       theme: ThemeData(
         primarySwatch: Colors.orange,
         brightness: Brightness.light,
@@ -35,9 +35,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Enum to define user types for the signup form
-enum UserType { messOwner, customer }
-
 // The main screen holding the flippable card and background
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -47,50 +44,48 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
-  // Animation controllers
   late AnimationController _cardFlipController;
   late Animation<double> _cardFlipAnimation;
   late AnimationController _backgroundAnimationController;
 
-  // State variables
-  final List<FoodParticle> _particles = [];
+  final List<HybridFoodParticle> _particles = []; // Use the new Hybrid class
   bool _isLogin = true;
 
-  // List of image paths for the animation
-  final List<String> _foodImagePaths = [
-    'assets/food.png',
-    'assets/food2.png',
-    'assets/food3.jpg',
-    'assets/food4.jpg',
+  // --- MODIFICATION START ---
+
+  // 1. List of standard material icons
+  final List<IconData> _foodIcons = [
+    Icons.local_cafe,
+    Icons.lunch_dining,
+    Icons.ramen_dining,
+    Icons.food_bank_outlined,
   ];
+
+  // 2. List of custom Indian food image assets
+  final List<String> _indianFoodImagePaths = [
+    'assets/food_icons/icon1.png',
+    'assets/food_icons/icon2.png',
+    'assets/food_icons/icon3.png',
+  ];
+
+  // --- MODIFICATION END ---
+
 
   @override
   void initState() {
     super.initState();
-    // Controller for the card flip animation
-    _cardFlipController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _cardFlipAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _cardFlipController,
-        curve: Curves.easeInOutCubic,
-      ),
-    );
+    _cardFlipController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _cardFlipAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: _cardFlipController, curve: Curves.easeInOutCubic));
+    _backgroundAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 25))..repeat();
 
-    // Controller for the background animation
-    _backgroundAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 25),
-    )..repeat();
-
-    // Initialize background particles
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final size = MediaQuery.of(context).size;
       setState(() {
-        for (int i = 0; i < 15; i++) {
-          _particles.add(FoodParticle(size, _foodImagePaths));
+        _particles.clear();
+        for (int i = 0; i < 50; i++) {
+          // --- MODIFICATION ---
+          // Pass both lists to the new hybrid particle constructor
+          _particles.add(HybridFoodParticle(size, _foodIcons, _indianFoodImagePaths));
         }
       });
     });
@@ -109,9 +104,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     } else {
       _cardFlipController.forward();
     }
-    setState(() {
-      _isLogin = !_isLogin;
-    });
+    setState(() { _isLogin = !_isLogin; });
   }
 
   @override
@@ -119,7 +112,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // Animated background
           AnimatedBuilder(
             animation: _backgroundAnimationController,
             builder: (context, child) {
@@ -131,7 +123,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               );
             },
           ),
-          // Main content centered
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -140,24 +131,18 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: 100,
-                        child: Image.asset('assets/DailyDinePro.png'),
-                      ),
+                      SizedBox(height: 100, child: Image.asset('assets/DailyDinePro.png')),
                       const SizedBox(height: 20),
-                      // The Flippable Card
                       AnimatedBuilder(
                         animation: _cardFlipAnimation,
                         builder: (context, child) {
                           final angle = _cardFlipAnimation.value * -pi;
-                          final transform = Matrix4.identity()
-                            ..setEntry(3, 2, 0.001)
-                            ..rotateY(angle);
+                          final transform = Matrix4.identity()..setEntry(3, 2, 0.001)..rotateY(angle);
                           return Transform(
                             transform: transform,
                             alignment: Alignment.center,
                             child: _cardFlipAnimation.value >= 0.5
-                                ? Transform( // Flips the back panel
+                                ? Transform(
                               transform: Matrix4.identity()..rotateY(pi),
                               alignment: Alignment.center,
                               child: _buildAuthCard(isLogin: false),
@@ -177,7 +162,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  // Builds the card UI for either login or signup
   Widget _buildAuthCard({required bool isLogin}) {
     return Card(
       elevation: 12,
@@ -186,198 +170,109 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       child: Container(
         padding: const EdgeInsets.all(24),
         width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.white.withOpacity(0.95),
-        ),
-        child: isLogin
-            ? LoginForm(onFlip: _flipCard)
-            : SignupForm(onFlip: _flipCard),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.white.withOpacity(0.95)),
+        child: isLogin ? LoginForm(onFlip: _flipCard) : SignupForm(onFlip: _flipCard),
       ),
     );
   }
 }
 
-// --- SIGNUP FORM WIDGET ---
-// class _SignupForm extends StatefulWidget {
-//   final VoidCallback onFlip;
-//   const _SignupForm({required this.onFlip});
-//
-//   @override
-//   State<_SignupForm> createState() => _SignupFormState();
-// }
-//
-// class _SignupFormState extends State<_SignupForm> {
-//   // State and controllers from your provided UI
-//   final _messOwnerFormKey = GlobalKey<FormState>();
-//   final _customerFormKey = GlobalKey<FormState>();
-//   UserType _selectedUserType = UserType.messOwner;
-//
-//   // Mess Owner Controllers
-//   final _messNameController = TextEditingController();
-//   final _ownerNameController = TextEditingController(); // New
-//   final _addressController = TextEditingController();
-//   final _cityController = TextEditingController();
-//   final _ownerPasswordController = TextEditingController(); // New
-//   final _ownerConfirmPasswordController = TextEditingController(); // New
-//
-//   // Customer Controllers
-//   final _customerNameController = TextEditingController();
-//   final _customerPasswordController = TextEditingController();
-//   final _customerConfirmPasswordController = TextEditingController();
-//
-//   // Common Controllers
-//   final _signupPhoneController = TextEditingController();
-//   final _signupEmailController = TextEditingController();
-//
-//
-//   @override
-//   void dispose() {
-//     _messNameController.dispose();
-//     _ownerNameController.dispose(); // New
-//     _addressController.dispose();
-//     _cityController.dispose();
-//     _signupPhoneController.dispose();
-//     _signupEmailController.dispose();
-//     _customerNameController.dispose();
-//     _ownerPasswordController.dispose(); // New
-//     _ownerConfirmPasswordController.dispose(); // New
-//     _customerPasswordController.dispose();
-//     _customerConfirmPasswordController.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       key: const ValueKey('signupForm'),
-//       children: [
-//         const Text("Create Account", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-//         const SizedBox(height: 12),
-//         ToggleButtons(
-//           isSelected: [_selectedUserType == UserType.messOwner, _selectedUserType == UserType.customer],
-//           onPressed: (index) {
-//             setState(() {
-//               _selectedUserType = index == 0 ? UserType.messOwner : UserType.customer;
-//             });
-//           },
-//           borderRadius: BorderRadius.circular(8),
-//           selectedColor: Colors.white,
-//           fillColor: Colors.orange.shade700,
-//           color: Colors.orange.shade700,
-//           borderColor: Colors.orange.shade700,
-//           selectedBorderColor: Colors.orange.shade700,
-//           children: const [
-//             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Mess Owner")),
-//             Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text("Customer")),
-//           ],
-//         ),
-//         const SizedBox(height: 16),
-//         AnimatedSwitcher(
-//           duration: const Duration(milliseconds: 300),
-//           transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
-//           child: _selectedUserType == UserType.messOwner
-//               ? _buildMessOwnerSubForm()
-//               : _buildCustomerSubForm(),
-//         ),
-//         const SizedBox(height: 16),
-//         buildFlipButton(label: "Already have an account? Login", onFlip: widget.onFlip),
-//       ],
-//     );
-//   }
-//
-//   Widget _buildMessOwnerSubForm() {
-//     return Form(
-//       key: _messOwnerFormKey,
-//       child: Column(
-//         key: const ValueKey('messOwnerForm'),
-//         children: [
-//           buildTextFormField(controller: _messNameController, label: "Mess Name", icon: Icons.storefront, validator: (v) => v!.isEmpty ? "Mess Name is required" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _ownerNameController, label: "Owner's Full Name", icon: Icons.person_outline, validator: (v) => v!.isEmpty ? "Owner's Name is required" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _addressController, label: "Address", icon: Icons.location_on_outlined, validator: (v) => v!.isEmpty ? "Address is required" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _cityController, label: "City", icon: Icons.location_city, validator: (v) => v!.isEmpty ? "City is required" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _signupPhoneController, label: "Phone Number", icon: Icons.phone_outlined, keyboardType: TextInputType.phone, validator: (v) => v!.length < 10 ? "Enter a valid phone number" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _signupEmailController, label: "Email Address", icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress, validator: (v) => !RegExp(r'\S+@\S+\.\S+').hasMatch(v!) ? "Enter a valid email" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _ownerPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v!.length < 6 ? "Password must be at least 6 characters" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _ownerConfirmPasswordController, label: "Confirm Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v != _ownerPasswordController.text ? "Passwords do not match" : null),
-//           const SizedBox(height: 20),
-//           buildSubmitButton(label: "Sign Up as Owner", onPressed: () {}),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   Widget _buildCustomerSubForm() {
-//     return Form(
-//       key: _customerFormKey,
-//       child: Column(
-//         key: const ValueKey('customerForm'),
-//         children: [
-//           buildTextFormField(controller: _customerNameController, label: "Full Name", icon: Icons.person_outline, validator: (v) => v!.isEmpty ? "Full Name is required" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _signupEmailController, label: "Email Address", icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress, validator: (v) => !RegExp(r'\S+@\S+\.\S+').hasMatch(v!) ? "Enter a valid email" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _customerPasswordController, label: "Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v!.length < 6 ? "Password must be at least 6 characters" : null),
-//           const SizedBox(height: 12),
-//           buildTextFormField(controller: _customerConfirmPasswordController, label: "Confirm Password", icon: Icons.lock_outline, obscureText: true, validator: (v) => v != _customerPasswordController.text ? "Passwords do not match" : null),
-//           const SizedBox(height: 20),
-//           buildSubmitButton(label: "Sign Up as Customer", onPressed: () {}),
-//         ],
-//       ),
-//     );
-//   }
-// }
+// --- NEW HYBRID PARTICLE CLASS ---
 
-// --- BACKGROUND PARTICLE ANIMATION ---
+// An enum to determine if the particle is a standard Icon or a custom Image
+enum ParticleType { icon, image }
 
-class FoodParticle {
+class HybridFoodParticle {
+  // Common properties
   late double x, y, speed, rotation, rotationSpeed, size, opacity;
-  late String imagePath;
   final Size bounds;
   final Random _random = Random();
+
+  // Type-specific properties
+  late ParticleType type;
+  IconData? icon; // Nullable: only used if type is 'icon'
+  String? imagePath; // Nullable: only used if type is 'image'
+  Color? color; // Nullable: only used if type is 'icon'
+
+  // Source lists
+  final List<IconData> _icons;
   final List<String> _imagePaths;
 
-  FoodParticle(this.bounds, this._imagePaths) {
+  // Colors for the standard icons
+  final List<Color> _colors = [
+    Colors.orange, Colors.green, Colors.red, Colors.blue, Colors.yellow, Colors.purple, Colors.brown,
+  ];
+
+  HybridFoodParticle(this.bounds, this._icons, this._imagePaths) {
     _reset();
   }
 
   void _reset() {
+    final totalSources = _icons.length + _imagePaths.length;
+    final randomIndex = _random.nextInt(totalSources);
+
+    if (randomIndex < _icons.length) {
+      // Create an ICON particle
+      type = ParticleType.icon;
+      icon = _icons[randomIndex];
+      imagePath = null;
+      color = _colors[_random.nextInt(_colors.length)];
+      opacity = _random.nextDouble() * 0.6 + 0.3;
+      size = _random.nextDouble() * 30 + 20; // Smaller size for icons
+    } else {
+      // Create an IMAGE particle
+      type = ParticleType.image;
+      imagePath = _imagePaths[randomIndex - _icons.length];
+      icon = null;
+      color = null; // Color is not needed for image assets
+      opacity = _random.nextDouble() * 0.5 + 0.4; // Slightly less transparent for images
+      size = _random.nextDouble() * 40 + 30; // Larger size for images
+    }
+
+    // Reset common physics properties
     x = _random.nextDouble() * bounds.width;
     y = _random.nextDouble() * bounds.height;
     speed = _random.nextDouble() * 0.5 + 0.2;
     rotation = _random.nextDouble() * 2 * pi;
     rotationSpeed = (_random.nextDouble() - 0.5) * 0.01;
-    size = _random.nextDouble() * 80 + 60;
-    opacity = _random.nextDouble() * 0.4 + 0.2;
-    imagePath = _imagePaths[_random.nextInt(_imagePaths.length)];
   }
 
   void update() {
     y -= speed;
     rotation += rotationSpeed;
     if (y < -size) {
-      y = bounds.height + size;
-      x = _random.nextDouble() * bounds.width;
+      // Reset particle when it goes off-screen, it will randomly become an icon or image again
+      _reset();
+      y = bounds.height + size; // Start just off the bottom of the screen
     }
   }
 
   Widget build(BuildContext context) {
+    // Decide which widget to build based on the particle's type
+    Widget particleWidget;
+    if (type == ParticleType.icon) {
+      particleWidget = Icon(
+        icon!,
+        size: size,
+        color: color!.withOpacity(opacity),
+      );
+    } else {
+      particleWidget = Opacity(
+        opacity: opacity,
+        child: Image.asset(
+          imagePath!,
+          width: size,
+          height: size,
+        ),
+      );
+    }
+
     return Positioned(
       left: x,
       top: y,
       child: Transform.rotate(
         angle: rotation,
-        child: Opacity(
-          opacity: opacity,
-          child: Image.asset(imagePath, width: size, height: size),
-        ),
+        child: particleWidget,
       ),
     );
   }

@@ -67,6 +67,10 @@ flutter:
     - assets/food3.jpg
     - assets/food4.jpg
     - assets/key/public.pem
+    - assets/food_icons/icon1.png
+    - assets/food_icons/icon2.png
+    - assets/food_icons/icon3.png
+    - assets/food_icons/icon4.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

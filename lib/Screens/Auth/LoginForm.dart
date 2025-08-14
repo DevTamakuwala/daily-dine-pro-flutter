@@ -4,6 +4,8 @@ import 'package:dailydine/Screens/Hello.dart';
 import 'package:dailydine/encryption/encryptText.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'forgot_password_screen.dart';
+
 
 import '../../credentials/api_url.dart';
 import '../../widgets/BuildFlipButton.dart';
@@ -82,6 +84,20 @@ class LoginForm extends StatelessWidget {
               }
             }),
         const SizedBox(height: 16),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              // For example, navigate to a ForgotPasswordScreen.
+              print("Forgot Password tapped!");
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFFF9800), // A nice Google blue
+            ),
+            child: const Text("Forgot Password?"),
+          ),
+        ),
         buildFlipButton(
             label: "Don't have an account? Sign Up", onFlip: onFlip),
       ],
