@@ -1,1 +1,1 @@
-String url = "http://192.168.29.75:8080/api/";
+String url = "https://dailydinebackend.azurewebsites.net/api/";
