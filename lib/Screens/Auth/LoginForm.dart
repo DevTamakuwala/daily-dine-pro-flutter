@@ -11,10 +11,16 @@ import '../../widgets/BuildSubmitButton.dart';
 import '../../widgets/BuildTextFormField.dart';
 import 'forgot_password_screen.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
+  const LoginForm({super.key, required this.onFlip});
 
-  LoginForm({super.key, required this.onFlip});
+  @override
+  State<LoginForm> createState() => _LoginformState();
+}
+
+class _LoginformState extends State<LoginForm> {
+
 
   final TextEditingController _loginEmailController = TextEditingController();
   final TextEditingController _loginPasswordController =
@@ -24,10 +30,10 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      key: const ValueKey('loginForm'),
+      // key: const ValueKey('loginForm'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (isLoading)
+        // if (isLoading)
           const Text("Welcome Back",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
@@ -72,7 +78,7 @@ class LoginForm extends StatelessWidget {
           ),
         ),
         buildFlipButton(
-            label: "Don't have an account? Sign Up", onFlip: onFlip),
+            label: "Don't have an account? Sign Up", onFlip: widget.onFlip),
       ],
     );
   }
