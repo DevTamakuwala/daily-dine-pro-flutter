@@ -33,9 +33,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Enum to define user types for the signup form
-enum UserType { MessOwner, Customer }
-
 // The main screen holding the flippable card and background
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});

@@ -116,12 +116,12 @@ class _AnimatedBackgroundState extends State<AnimatedBackground> with SingleTick
 
   // Define the icons and images for the animation here
   final List<IconData> _foodIcons = [
-    // Icons.local_cafe,
-    // Icons.lunch_dining,
-    // Icons.ramen_dining,
-    // Icons.food_bank_outlined,
-    // Icons.cake,
-    // Icons.fastfood,
+    Icons.local_cafe,
+    Icons.lunch_dining,
+    Icons.ramen_dining,
+    Icons.food_bank_outlined,
+    Icons.cake,
+    Icons.fastfood,
   ];
 
   final List<String> _indianFoodImagePaths = [

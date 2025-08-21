@@ -4,13 +4,12 @@ import 'package:dailydine/Screens/Hello.dart';
 import 'package:dailydine/encryption/encryptText.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'forgot_password_screen.dart';
-
 
 import '../../credentials/api_url.dart';
 import '../../widgets/BuildFlipButton.dart';
 import '../../widgets/BuildSubmitButton.dart';
 import '../../widgets/BuildTextFormField.dart';
+import 'forgot_password_screen.dart';
 
 class LoginForm extends StatelessWidget {
   final VoidCallback onFlip;
@@ -20,6 +19,7 @@ class LoginForm extends StatelessWidget {
   final TextEditingController _loginEmailController = TextEditingController();
   final TextEditingController _loginPasswordController =
       TextEditingController();
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +27,9 @@ class LoginForm extends StatelessWidget {
       key: const ValueKey('loginForm'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Text("Welcome Back",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        if (isLoading)
+          const Text("Welcome Back",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Text("Log in to your account",
             style: TextStyle(color: Colors.grey.shade600)),
@@ -59,7 +60,10 @@ class LoginForm extends StatelessWidget {
             onPressed: () {
               // CHANGE: Navigate to the ForgotPasswordScreen when the "Forgot Password?" button is tapped.
               print("Forgot Password tapped!");
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ForgotPasswordScreen()));
             },
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFFF9800), // A nice Google blue
@@ -73,15 +77,17 @@ class LoginForm extends StatelessWidget {
     );
   }
 
-  Future<void> handleLogin(String email, String password, BuildContext context) async {
+  Future<void> handleLogin(
+      String email, String password, BuildContext context) async {
     print("Handler called");
     String encryptedPassword = await encrypt(password);
     String apiUrl = '${url}auth/login';
+    print(apiUrl);
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $encryptedPassword"
+        // "Authorization": "Bearer $encryptedPassword"
       },
       body: jsonEncode({
         "email": email,
@@ -93,7 +99,7 @@ class LoginForm extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (builder) => Hello(token : response.body),
+          builder: (builder) => Hello(token: response.body),
         ),
       );
     } else {
