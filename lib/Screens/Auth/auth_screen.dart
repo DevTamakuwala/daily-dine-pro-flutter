@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:dailydine/animations/animated_background.dart';
 import 'package:flutter/material.dart';
-import 'LoginForm.dart';
-import 'SignupForm.dart';
+import 'login_form.dart';
+import 'sign_up_form.dart';
 
 class AuthScreen extends StatefulWidget {
   final Size screenSize;

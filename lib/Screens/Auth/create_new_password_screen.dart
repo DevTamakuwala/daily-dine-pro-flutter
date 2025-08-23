@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../animations/animated_background.dart';
-import '../../widgets/BuildTextFormField.dart';
+import '../../widgets/build_text_form_field.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
   const CreateNewPasswordScreen({super.key});
