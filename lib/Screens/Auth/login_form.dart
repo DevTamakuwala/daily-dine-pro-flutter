@@ -1,14 +1,14 @@
 import 'dart:convert';
 
-import 'package:dailydine/Screens/Hello.dart';
-import 'package:dailydine/encryption/encryptText.dart';
+import 'package:dailydine/Screens/hello.dart';
+import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../credentials/api_url.dart';
-import '../../widgets/BuildFlipButton.dart';
-import '../../widgets/BuildSubmitButton.dart';
-import '../../widgets/BuildTextFormField.dart';
+import '../../widgets/build_flip_button.dart';
+import '../../widgets/build_submit_button.dart';
+import '../../widgets/build_text_form_field.dart';
 import 'forgot_password_screen.dart';
 
 class LoginForm extends StatefulWidget {

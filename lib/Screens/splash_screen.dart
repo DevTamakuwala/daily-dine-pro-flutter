@@ -1,5 +1,5 @@
-import 'package:dailydine/Screens/Auth/AuthScreen.dart';
-import 'package:dailydine/Screens/Hello.dart';
+import 'package:dailydine/Screens/Auth/auth_screen.dart';
+import 'package:dailydine/Screens/hello.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

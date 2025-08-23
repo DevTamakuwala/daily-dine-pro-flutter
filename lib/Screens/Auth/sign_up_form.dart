@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../credentials/api_url.dart';
-import '../../encryption/encryptText.dart';
-import '../../enums/UserTypes.dart';
-import '../../widgets/BuildFlipButton.dart';
-import '../../widgets/BuildSubmitButton.dart';
-import '../../widgets/BuildTextFormField.dart';
-import '../Hello.dart';
+import '../../encryption/encrypt_text.dart';
+import '../../enums/user_types.dart';
+import '../../widgets/build_flip_button.dart';
+import '../../widgets/build_submit_button.dart';
+import '../../widgets/build_text_form_field.dart';
+import '../hello.dart';
 
 class SignupForm extends StatefulWidget {
   final VoidCallback onFlip;

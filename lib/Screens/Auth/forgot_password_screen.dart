@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../animations/animated_background.dart';
 import 'create_new_password_screen.dart';
 // Import the reusable widgets
-import '../../widgets/BuildSubmitButton.dart';
-import '../../widgets/BuildTextFormField.dart';
+import '../../widgets/build_submit_button.dart';
+import '../../widgets/build_text_form_field.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
