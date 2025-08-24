@@ -1,12 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../credentials/api_url.dart';
-import 'package:http/http.dart' as http;
 
 class Hello extends StatefulWidget {
   final String token;
+
   const Hello({super.key, required this.token});
 
   @override
@@ -14,13 +13,12 @@ class Hello extends StatefulWidget {
 }
 
 class _HelloState extends State<Hello> {
-
   String data = "";
 
   @override
   Widget build(BuildContext context) {
     testAPI();
-    if(data != "") {
+    if (data != "") {
       return Scaffold(
         body: Center(
           child: Text(data),
@@ -36,7 +34,7 @@ class _HelloState extends State<Hello> {
   }
 
   Future<void> testAPI() async {
-    if(data == ""){
+    if (data == "") {
       String apiUrl = '${url}private/hello';
       print("API getting called $apiUrl");
       final response = await http.get(
@@ -47,12 +45,12 @@ class _HelloState extends State<Hello> {
         },
       );
 
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         print("API called");
         print(response.body);
         data = response.body;
         setState(() {});
-      }else{
+      } else {
         print('Failed: ${response.statusCode} - ${response.body}');
       }
     }
