@@ -106,12 +106,13 @@ class _LoginformState extends State<LoginForm> {
 
     String tokenId = responseBody[0];
 
-    await saveTokenId(tokenId);
-    await saveEmail(email);
-    await savePassword(password);
-    await saveUserRole(responseBody[1]);
+    print(response.body);
 
     if (response.statusCode == 302) {
+      await saveTokenId(tokenId);
+      await saveEmail(email);
+      await savePassword(password);
+      await saveUserRole(responseBody[1]);
       Navigator.pop(context);
       switch (responseBody[1]) {
         case "MessOwner":
