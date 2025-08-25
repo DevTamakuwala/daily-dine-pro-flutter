@@ -31,7 +31,8 @@ class _SignupFormState extends State<SignupForm> {
 
   // Mess Owner Controllers
   final _messNameController = TextEditingController();
-  final _ownerNameController = TextEditingController();
+  final _ownerFirstNameController = TextEditingController();
+  final _ownerLastNameController = TextEditingController();
   final _addressController = TextEditingController();
   final _cityController = TextEditingController();
   final _ownerPasswordController = TextEditingController();
@@ -51,7 +52,8 @@ class _SignupFormState extends State<SignupForm> {
   @override
   void dispose() {
     _messNameController.dispose();
-    _ownerNameController.dispose();
+    _ownerFirstNameController.dispose();
+    _ownerLastNameController.dispose();
     _addressController.dispose();
     _cityController.dispose();
     _signupPhoneController.dispose();
@@ -126,17 +128,32 @@ class _SignupFormState extends State<SignupForm> {
         key: const ValueKey('messOwnerForm'),
         mainAxisSize: MainAxisSize.min,
         children: [
+          Row(
+            children: [
+              Expanded(
+                child: buildTextFormField(
+                    controller: _ownerFirstNameController,
+                    label: "First Name",
+                    icon: Icons.person_outline,
+                    validator: (v) => v!.isEmpty ? "First Name is required" : null),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: buildTextFormField(
+                    controller: _ownerLastNameController,
+                    label: "Last Name",
+                    icon: Icons.person_outline,
+                    validator: (v) => v!.isEmpty ? "Last Name is required" : null),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
           buildTextFormField(
               controller: _messNameController,
               label: "Mess Name",
               icon: Icons.storefront,
               validator: (v) => v!.isEmpty ? "Mess Name is required" : null),
-          const SizedBox(height: 12),
-          buildTextFormField(
-              controller: _ownerNameController,
-              label: "Owner's Full Name",
-              icon: Icons.person_outline,
-              validator: (v) => v!.isEmpty ? "Owner's Name is required" : null),
           const SizedBox(height: 12),
           buildTextFormField(
               controller: _addressController,
@@ -185,7 +202,9 @@ class _SignupFormState extends State<SignupForm> {
                   ? "Passwords do not match"
                   : null),
           const SizedBox(height: 20),
-          buildSubmitButton(label: "Sign Up as Owner", onPressed: () {}),
+          buildSubmitButton(label: "Sign Up as Owner", onPressed: () {
+            //TODO: Mess owner sign up
+          }),
         ],
       ),
     );
@@ -323,4 +342,6 @@ class _SignupFormState extends State<SignupForm> {
       );
     }
   }
+
+  //TODO: Mess owner sign up
 }
