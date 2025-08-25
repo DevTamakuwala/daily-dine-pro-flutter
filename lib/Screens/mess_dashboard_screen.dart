@@ -1,4 +1,6 @@
+import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../animations/animated_background.dart';
 
 // The main dashboard screen widget, now a StatefulWidget
@@ -56,7 +58,17 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined, size: 28),
-                        onPressed: () {},
+                        onPressed: () async {
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          prefs.clear();
+                          Navigator.pop(context);
+                          if (mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => AuthScreen(screenSize: MediaQuery.of(context).size)),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),

@@ -15,6 +15,11 @@ Future<void> savePassword(value) async {
   await prefs.setString("Password", value);
 }
 
+Future<void> saveUserRole(value) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("UserRole", value);
+}
+
 Future<String?> getTokenId() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? value = prefs.getString("TokenId");
@@ -30,5 +35,11 @@ Future<String?> getEmail() async {
 Future<String?> getPassword() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? value = prefs.getString("Password");
+  return value;
+}
+
+Future<String?> getUserRole() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? value = prefs.getString("UserRole");
   return value;
 }

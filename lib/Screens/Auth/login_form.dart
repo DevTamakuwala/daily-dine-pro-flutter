@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:dailydine/Screens/hello.dart';
+import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
+import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,11 +10,12 @@ import '../../credentials/api_url.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
-import 'forgot_password_screen.dart';
 import '../mess_dashboard_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
+
   const LoginForm({super.key, required this.onFlip});
 
   @override
@@ -21,8 +23,6 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginformState extends State<LoginForm> {
-
-
   final TextEditingController _loginEmailController = TextEditingController();
   final TextEditingController _loginPasswordController =
       TextEditingController();
@@ -35,8 +35,8 @@ class _LoginformState extends State<LoginForm> {
       mainAxisSize: MainAxisSize.min,
       children: [
         // if (isLoading)
-          const Text("Welcome Back",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const Text("Welcome Back",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Text("Log in to your account",
             style: TextStyle(color: Colors.grey.shade600)),
@@ -102,14 +102,60 @@ class _LoginformState extends State<LoginForm> {
       }),
     );
 
+    List<String> responseBody = response.body.split(" ");
+
+    String tokenId = responseBody[0];
+
+    print(response.body);
+
     if (response.statusCode == 302) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          //builder: (builder) => Hello(token: response.body),
-          builder: (builder) => MessDashboardScreen(token:response.body),
-        ),
-      );
+      await saveTokenId(tokenId);
+      await saveEmail(email);
+      await savePassword(password);
+      await saveUserRole(responseBody[1]);
+      Navigator.pop(context);
+      switch (responseBody[1]) {
+        case "MessOwner":
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              //builder: (builder) => Hello(token: response.body),
+              builder: (builder) => MessDashboardScreen(token: tokenId),
+            ),
+          );
+
+        case "Customer":
+        //TODO: Navigate to 'Customer' dashboard with token
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            //builder: (builder) => Hello(token: response.body),
+            builder: (builder) => MessDashboardScreen(token: tokenId),
+          ),
+        );
+
+        case "Admin":
+        //TODO: Navigate to 'Admin' dashboard with token
+
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     //builder: (builder) => Hello(token: response.body),
+        //     builder: (builder) => MessDashboardScreen(token: tokenId),
+        //   ),
+        // );
+
+        default:
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              //builder: (builder) => Hello(token: response.body),
+              builder: (builder) =>
+                  AuthScreen(screenSize: MediaQuery.of(context).size),
+            ),
+          );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
