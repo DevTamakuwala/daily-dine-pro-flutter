@@ -10,7 +10,7 @@ import '../../credentials/api_url.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
-import '../mess_dashboard_screen.dart';
+import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
 
 class LoginForm extends StatefulWidget {

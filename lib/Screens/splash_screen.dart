@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import '../credentials/api_url.dart';
 import '../encryption/encrypt_text.dart';
 import '../enums/user_types.dart';
-import 'mess_dashboard_screen.dart';
+import 'user/mess_owner/mess_dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

@@ -1,11 +1,13 @@
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../animations/animated_background.dart';
+
+import '../../../animations/animated_background.dart';
 
 // The main dashboard screen widget, now a StatefulWidget
 class MessDashboardScreen extends StatefulWidget {
   final String token;
+
   const MessDashboardScreen({super.key, required this.token});
 
   @override
@@ -34,7 +36,8 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
                     children: [
                       const CircleAvatar(
                         radius: 25,
-                        backgroundImage: NetworkImage('https://placehold.co/100x100/EFEFEF/333333?text=Logo'),
+                        backgroundImage: NetworkImage(
+                            'https://placehold.co/100x100/EFEFEF/333333?text=Logo'),
                         backgroundColor: Colors.white,
                       ),
                       const SizedBox(width: 15),
@@ -43,7 +46,8 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
                         children: [
                           Text(
                             "Welcome Back!",
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                            style: TextStyle(
+                                color: Colors.grey.shade600, fontSize: 14),
                           ),
                           Text(
                             messName, // Using the state variable
@@ -57,17 +61,28 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: const Icon(Icons.notifications_outlined, size: 28),
+                        icon:
+                            const Icon(Icons.notifications_outlined, size: 28),
                         onPressed: () async {
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
                           prefs.clear();
                           Navigator.pop(context);
-                          if (mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => AuthScreen(screenSize: MediaQuery.of(context).size)),
-                            );
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (builder) => AuthScreen(
+                                  screenSize: MediaQuery.of(context).size),
+                            ),
+                          );
+                          // if (mounted) {
+                          //   Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) => AuthScreen(
+                          //             screenSize: MediaQuery.of(context).size)),
+                          //   );
+                          // }
                         },
                       ),
                     ],
@@ -123,7 +138,10 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
                       // --- Quick Actions Section ---
                       Text(
                         "Quick Actions",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey.shade800),
                       ),
                       const SizedBox(height: 16),
                       const Row(
@@ -210,7 +228,8 @@ class _SummaryCard extends StatelessWidget {
               ),
               Text(
                 value,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -233,7 +252,10 @@ class _TodayMenuSection extends StatelessWidget {
         children: [
           Text(
             "Today's Menu",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade800),
           ),
           const SizedBox(height: 12),
           Container(
@@ -276,6 +298,7 @@ class _TodayMenuSection extends StatelessWidget {
 // Displays a list of menu items for a specific meal
 class _MenuList extends StatelessWidget {
   final List<String> items;
+
   const _MenuList({required this.items});
 
   @override
