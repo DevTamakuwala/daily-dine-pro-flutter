@@ -75,14 +75,6 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
                                   screenSize: MediaQuery.of(context).size),
                             ),
                           );
-                          // if (mounted) {
-                          //   Navigator.pushReplacement(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) => AuthScreen(
-                          //             screenSize: MediaQuery.of(context).size)),
-                          //   );
-                          // }
                         },
                       ),
                     ],

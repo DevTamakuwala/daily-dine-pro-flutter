@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../Auth/auth_screen.dart';
 
 // This is the main screen that holds the BottomNavigationBar for the customer.
 class CustomerDashboardScreen extends StatefulWidget {
-  const CustomerDashboardScreen({super.key});
+  const CustomerDashboardScreen({super.key, required String token});
 
   @override
-  State<CustomerDashboardScreen> createState() => _CustomerDashboardScreenState();
+  State<CustomerDashboardScreen> createState() =>
+      _CustomerDashboardScreenState();
 }
 
 class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
@@ -92,7 +96,8 @@ class _CustomerHomeState extends State<CustomerHome> {
                   children: [
                     Text(
                       "Hello,",
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                      style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
                     ),
                     Text(
                       customerName,
@@ -105,9 +110,21 @@ class _CustomerHomeState extends State<CustomerHome> {
                   ],
                 ),
                 const Spacer(),
-                const CircleAvatar(
-                  radius: 25,
-                  backgroundImage: NetworkImage('https://placehold.co/100x100/FF9800/FFFFFF?text=P'),
+                IconButton(
+                  onPressed: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.clear();
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (builder) => AuthScreen(
+                            screenSize: MediaQuery.of(context).size),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.person, size: 28),
                 ),
               ],
             ),
@@ -127,15 +144,27 @@ class _CustomerHomeState extends State<CustomerHome> {
             // --- Quick Actions Section ---
             Text(
               "Quick Actions",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade800),
             ),
             const SizedBox(height: 16),
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _QuickActionButton(label: "Weekly Menu", icon: Icons.calendar_month_outlined, color: Color(0xFF0288D1)),
-                _QuickActionButton(label: "Make Payment", icon: Icons.currency_rupee, color: Color(0xFF388E3C)),
-                _QuickActionButton(label: "Pause Tiffin", icon: Icons.pause_circle_outline, color: Color(0xFFD32F2F)),
+                _QuickActionButton(
+                    label: "Weekly Menu",
+                    icon: Icons.calendar_month_outlined,
+                    color: Color(0xFF0288D1)),
+                _QuickActionButton(
+                    label: "Make Payment",
+                    icon: Icons.currency_rupee,
+                    color: Color(0xFF388E3C)),
+                _QuickActionButton(
+                    label: "Pause Tiffin",
+                    icon: Icons.pause_circle_outline,
+                    color: Color(0xFFD32F2F)),
               ],
             ),
           ],
@@ -150,7 +179,9 @@ class _CustomerHomeState extends State<CustomerHome> {
 class _SubscriptionStatusCard extends StatelessWidget {
   final String planName;
   final int daysLeft;
-  const _SubscriptionStatusCard({required this.planName, required this.daysLeft});
+
+  const _SubscriptionStatusCard(
+      {required this.planName, required this.daysLeft});
 
   @override
   Widget build(BuildContext context) {
@@ -159,19 +190,29 @@ class _SubscriptionStatusCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.orange[700],
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), spreadRadius: 2, blurRadius: 15)],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.orange.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 15)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "SUBSCRIPTION STATUS",
-            style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+            style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.5),
           ),
           const SizedBox(height: 8),
           Text(
             planName,
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           Row(
@@ -183,7 +224,8 @@ class _SubscriptionStatusCard extends StatelessWidget {
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
               const Spacer(),
-              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+              const Icon(Icons.arrow_forward_ios,
+                  color: Colors.white, size: 16),
             ],
           ),
         ],
@@ -202,7 +244,10 @@ class _TodayMenuSection extends StatelessWidget {
       children: [
         Text(
           "Today's Menu",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey.shade800),
+          style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800),
         ),
         const SizedBox(height: 12),
         const _MenuCard(
@@ -235,7 +280,12 @@ class _MenuCard extends StatelessWidget {
   final String items;
   final IconData icon;
   final Color color;
-  const _MenuCard({required this.meal, required this.items, required this.icon, required this.color});
+
+  const _MenuCard(
+      {required this.meal,
+      required this.items,
+      required this.icon,
+      required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +306,9 @@ class _MenuCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(meal, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(meal,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
                 Text(items, style: TextStyle(color: Colors.grey.shade600)),
               ],
             ),
@@ -271,7 +323,9 @@ class _QuickActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color color;
-  const _QuickActionButton({required this.label, required this.icon, required this.color});
+
+  const _QuickActionButton(
+      {required this.label, required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +341,9 @@ class _QuickActionButton extends StatelessWidget {
           children: [
             Icon(icon, size: 32, color: color),
             const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w600, color: color)),
+            Text(label,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w600, color: color)),
           ],
         ),
       ),
@@ -295,41 +351,52 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-
 // --- Placeholder Screens for Customer Navigation ---
 
 class CustomerMenuScreen extends StatefulWidget {
   const CustomerMenuScreen({super.key});
+
   @override
   State<CustomerMenuScreen> createState() => _CustomerMenuScreenState();
 }
+
 class _CustomerMenuScreenState extends State<CustomerMenuScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text("Menu Screen", style: TextStyle(fontSize: 24))));
+    return const Scaffold(
+        body:
+            Center(child: Text("Menu Screen", style: TextStyle(fontSize: 24))));
   }
 }
 
 class CustomerPaymentsScreen extends StatefulWidget {
   const CustomerPaymentsScreen({super.key});
+
   @override
   State<CustomerPaymentsScreen> createState() => _CustomerPaymentsScreenState();
 }
+
 class _CustomerPaymentsScreenState extends State<CustomerPaymentsScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text("Payments Screen", style: TextStyle(fontSize: 24))));
+    return const Scaffold(
+        body: Center(
+            child: Text("Payments Screen", style: TextStyle(fontSize: 24))));
   }
 }
 
 class CustomerProfileScreen extends StatefulWidget {
   const CustomerProfileScreen({super.key});
+
   @override
   State<CustomerProfileScreen> createState() => _CustomerProfileScreenState();
 }
+
 class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text("Profile Screen", style: TextStyle(fontSize: 24))));
+    return const Scaffold(
+        body: Center(
+            child: Text("Profile Screen", style: TextStyle(fontSize: 24))));
   }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../Auth/auth_screen.dart';
 
 // This is the main screen that holds the BottomNavigationBar for the Admin.
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key});
+  const AdminDashboardScreen({super.key, required String token});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -81,6 +84,24 @@ class _AdminHomeState extends State<AdminHome> {
         title: const Text("Admin Dashboard"),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              SharedPreferences prefs =
+              await SharedPreferences.getInstance();
+              prefs.clear();
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (builder) => AuthScreen(
+                      screenSize: MediaQuery.of(context).size),
+                ),
+              );
+            },
+            icon: Icon(Icons.person, size: 28),
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFFF4F6F8),
       body: ListView(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
+import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +11,9 @@ import '../../credentials/api_url.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
+import '../user/admin/admin_dashboard_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
-import '../user/customer/customer_dashboard_screen.dart';
-import '../user/admin/admin_dashboard_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -54,15 +54,16 @@ class _LoginformState extends State<LoginForm> {
             icon: Icons.lock_outline,
             obscureText: true),
         const SizedBox(height: 24),
-          buildSubmitButton(
-          label: "customer_dashborad",
-          onPressed: () async{
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                   // builder: (context) => CustomerDashboardScreen()));
-                      builder: (context) => AdminDashboardScreen()));
-          }),
+        // buildSubmitButton(
+        //     label: "customer_dashborad",
+            // onPressed: () async {
+            //   Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //           // builder: (context) => CustomerDashboardScreen()));
+            //           builder: (context) => AdminDashboardScreen()));
+            // }
+            // ),
         const SizedBox(height: 15),
         buildSubmitButton(
             label: "Login",
@@ -137,18 +138,22 @@ class _LoginformState extends State<LoginForm> {
           );
 
         case "Customer":
-        //TODO: Navigate to 'Customer' dashboard with token
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            //builder: (builder) => Hello(token: response.body),
-            builder: (builder) => MessDashboardScreen(token: tokenId),
-          ),
-        );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              //builder: (builder) => Hello(token: response.body),
+              builder: (builder) => CustomerDashboardScreen(token: tokenId),
+            ),
+          );
 
         case "Admin":
-        //TODO: Navigate to 'Admin' dashboard with token
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              //builder: (builder) => Hello(token: response.body),
+              builder: (builder) => AdminDashboardScreen(token: tokenId),
+            ),
+          );
 
         // Navigator.push(
         //   context,
