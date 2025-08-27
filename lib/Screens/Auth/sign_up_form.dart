@@ -1,8 +1,9 @@
-// --- SIGNUP FORM WIDGET ---
 import 'dart:convert';
 
+import 'package:dailydine/Screens/user/mess_owner/mess_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart'; // CHANGE: Import for date formatting
 
 import '../../credentials/api_url.dart';
 import '../../encryption/encrypt_text.dart';
@@ -10,7 +11,7 @@ import '../../enums/user_types.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
-import '../hello.dart';
+import '../user/customer/customer_dashboard_screen.dart';
 
 class SignupForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -31,12 +32,19 @@ class _SignupFormState extends State<SignupForm> {
 
   // Mess Owner Controllers
   final _messNameController = TextEditingController();
+  // CHANGE: Added separate controllers for first and last name for Mess Owner.
   final _ownerFirstNameController = TextEditingController();
   final _ownerLastNameController = TextEditingController();
   final _addressController = TextEditingController();
-  final _cityController = TextEditingController();
+  // CHANGE: Added controllers for city, zip code, and state for Mess Owner.
+  final _messOwnerCityController = TextEditingController();
+  final _zipCodeController = TextEditingController();
+  final _stateController = TextEditingController();
   final _ownerPasswordController = TextEditingController();
   final _ownerConfirmPasswordController = TextEditingController();
+  // CHANGE: New controller for establishment date picker.
+  final _establishmentDateController =
+      TextEditingController(); // New controller for establishment date
 
   // Customer Controllers
   final _customerFirstNameController = TextEditingController();
@@ -55,7 +63,9 @@ class _SignupFormState extends State<SignupForm> {
     _ownerFirstNameController.dispose();
     _ownerLastNameController.dispose();
     _addressController.dispose();
-    _cityController.dispose();
+    _messOwnerCityController.dispose();
+    _zipCodeController.dispose(); // CHANGE: Dispose zip code controller
+    _stateController.dispose(); // CHANGE: Dispose state controller
     _signupPhoneController.dispose();
     _signupEmailController.dispose();
     _customerFirstNameController.dispose();
@@ -65,6 +75,7 @@ class _SignupFormState extends State<SignupForm> {
     _ownerConfirmPasswordController.dispose();
     _customerPasswordController.dispose();
     _customerConfirmPasswordController.dispose();
+    _establishmentDateController.dispose(); // CHANGE: Dispose the new controller
     super.dispose();
   }
 
@@ -128,6 +139,7 @@ class _SignupFormState extends State<SignupForm> {
         key: const ValueKey('messOwnerForm'),
         mainAxisSize: MainAxisSize.min,
         children: [
+          // CHANGE: First Name and Last Name fields for Mess Owner in a single row.
           Row(
             children: [
               Expanded(
@@ -135,7 +147,8 @@ class _SignupFormState extends State<SignupForm> {
                     controller: _ownerFirstNameController,
                     label: "First Name",
                     icon: Icons.person_outline,
-                    validator: (v) => v!.isEmpty ? "First Name is required" : null),
+                    validator: (v) =>
+                        v!.isEmpty ? "First Name is required" : null),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -143,12 +156,12 @@ class _SignupFormState extends State<SignupForm> {
                     controller: _ownerLastNameController,
                     label: "Last Name",
                     icon: Icons.person_outline,
-                    validator: (v) => v!.isEmpty ? "Last Name is required" : null),
+                    validator: (v) =>
+                        v!.isEmpty ? "Last Name is required" : null),
               ),
             ],
           ),
           const SizedBox(height: 12),
-
           buildTextFormField(
               controller: _messNameController,
               label: "Mess Name",
@@ -161,11 +174,68 @@ class _SignupFormState extends State<SignupForm> {
               icon: Icons.location_on_outlined,
               validator: (v) => v!.isEmpty ? "Address is required" : null),
           const SizedBox(height: 12),
+          // CHANGE: Added Zip Code text field with onChanged to fetch city/state.
           buildTextFormField(
-              controller: _cityController,
+              controller: _zipCodeController,
+              label: "Zip Code",
+              icon: Icons.location_on_outlined,
+              keyboardType: TextInputType.number,
+              validator: (v) => v!.isEmpty || v.length != 6
+                  ? "Enter a valid 6-digit Zip Code"
+                  : null,
+              onChanged: (value) {
+                if (value.length == 6) {
+                  _fetchCityStateFromZipCode(value);
+                } else {
+                  setState(() {
+                    _messOwnerCityController.clear();
+                    _stateController.clear();
+                  });
+                }
+              }),
+          const SizedBox(height: 12),
+          // CHANGE: City text field, disabled and populated by _fetchCityStateFromZipCode.
+          buildTextFormField(
+              controller: _messOwnerCityController,
               label: "City",
               icon: Icons.location_city,
+              enabled: false,
               validator: (v) => v!.isEmpty ? "City is required" : null),
+          const SizedBox(height: 12),
+          // CHANGE: State text field, disabled and populated by _fetchCityStateFromZipCode.
+          buildTextFormField(
+              controller: _stateController,
+              label: "State",
+              icon: Icons.location_city,
+              enabled: false,
+              validator: (v) => v!.isEmpty ? "State is required" : null),
+          const SizedBox(height: 12),
+          // CHANGE: New TextFormField for Establishment Date with a date picker dialog.
+          buildTextFormField(
+            controller: _establishmentDateController,
+            label: "Establishment Date",
+            icon: Icons.calendar_today,
+            readOnly: true,
+            // Make it read-only so the date picker handles input
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              );
+
+              if (pickedDate != null) {
+                String formattedDate =
+                    DateFormat('yyyy-MM-dd').format(pickedDate);
+                setState(() {
+                  _establishmentDateController.text = formattedDate;
+                });
+              }
+            },
+            validator: (v) =>
+                v!.isEmpty ? "Establishment Date is required" : null,
+          ),
           const SizedBox(height: 12),
           buildTextFormField(
               controller: _signupPhoneController,
@@ -202,9 +272,27 @@ class _SignupFormState extends State<SignupForm> {
                   ? "Passwords do not match"
                   : null),
           const SizedBox(height: 20),
-          buildSubmitButton(label: "Sign Up as Owner", onPressed: () {
-            //TODO: Mess owner sign up
-          }),
+          buildSubmitButton(
+              label: "Sign Up as Owner",
+              onPressed: () async {
+                if (_messOwnerFormKey.currentState!.validate()) {
+                  await handleMessOwnerSignUp(
+                      _ownerFirstNameController.text,
+                      _ownerLastNameController.text,
+                      _messNameController.text,
+                      _addressController.text,
+                      _signupEmailController.text,
+                      _signupPhoneController.text,
+                      _ownerPasswordController.text,
+                      context,
+                      DateTime.now().toUtc().toIso8601String(),
+                      // CHANGE: Pass zip code, city, state, and establishment date.
+                      int.parse(_zipCodeController.text),
+                      _messOwnerCityController.text,
+                      _stateController.text,
+                      _establishmentDateController.text); 
+                }
+              }),
         ],
       ),
     );
@@ -266,7 +354,6 @@ class _SignupFormState extends State<SignupForm> {
           buildSubmitButton(
               label: "Sign Up as Customer",
               onPressed: () {
-                print("Clicked");
                 if (_customerFormKey.currentState!.validate()) {
                   handleCustomerSignUp(
                     _customerFirstNameController.text,
@@ -283,6 +370,62 @@ class _SignupFormState extends State<SignupForm> {
         ],
       ),
     );
+  }
+
+  /*
+  * CHANGE: Function to fetch city and state name from the zip code using a public API.
+  */
+  Future<void> _fetchCityStateFromZipCode(String zipCode) async {
+    final url = Uri.parse("https://api.postalpincode.in/pincode/$zipCode");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List data = json.decode(response.body);
+
+        if (data.isNotEmpty && data[0]['Status'] == "Success") {
+          final postOffice = data[0]['PostOffice'][0];
+          String district = postOffice['District'];
+          String state = postOffice['State'];
+
+          setState(() {
+            _messOwnerCityController.text = district;
+            _stateController.text = state;
+          });
+        } else {
+          setState(() {
+            _messOwnerCityController.clear();
+            _stateController.clear();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("No city/state found for this zip code."),
+            ),
+          );
+        }
+      } else {
+        setState(() {
+          _messOwnerCityController.clear();
+          _stateController.clear();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Failed to fetch city and state."),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _messOwnerCityController.clear();
+        _stateController.clear();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error fetching city and state: $e"),
+        ),
+      );
+    }
   }
 
   Future<void> handleCustomerSignUp(
@@ -331,7 +474,7 @@ class _SignupFormState extends State<SignupForm> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (builder) => Hello(token: response.body),
+          builder: (builder) => CustomerDashboardScreen(token: response.body),
         ),
       );
     } else {
@@ -343,5 +486,73 @@ class _SignupFormState extends State<SignupForm> {
     }
   }
 
-  //TODO: Mess owner sign up
+  //Mess owner sign up
+  Future<void> handleMessOwnerSignUp(
+      String fname,
+      String lname,
+      String messName,
+      String address,
+      String email,
+      String phone,
+      String password,
+      BuildContext context,
+      String date,
+      // CHANGE: Added parameters for zip code, city, state, and establishment date.
+      int zipcode,
+      String city,
+      String state,
+      String establishmentDate) async {
+    String encryptedPassword = await encrypt(password);
+    String apiUrl = '${url}auth/register';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "createdBy": 0,
+        "createdAt": date,
+        "modifiedBy": 0,
+        "modifiedAt": date,
+        "userId": 0,
+        "email": email,
+        "password": encryptedPassword,
+        "firstName": fname,
+        "lastName": lname,
+        "phoneNo": phone,
+        "role": _selectedUserType.name,
+        "active": false,
+        "mess": {
+          "createdBy": 0,
+          "createdAt": date,
+          "modifiedBy": 0,
+          "modifiedAt": date,
+          "messId": 0,
+          "messName": messName,
+          "address": address,
+          "city": city,
+          "state": state,
+          "zipCode": zipcode,
+          "messPhoneNo": phone,
+          "establisheDate": establishmentDate, // Use the new establishmentDate
+        },
+        "customer": null
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (builder) => MessDashboardScreen(token: response.body),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.body),
+        ),
+      );
+    }
+  }
 }

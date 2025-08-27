@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
+import 'package:dailydine/Screens/user/admin/admin_dashboard_screen.dart';
+import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +27,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToHome() async {
-    print("Navigate to home");
     // Wait for the splash screen duration
     await Future.delayed(const Duration(seconds: 3));
 
@@ -39,11 +40,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Widget nextPage;
     if (token.isEmpty) {
-      print("Token empty");
       // Pass the collected screen size to the AuthScreen
       nextPage = AuthScreen(screenSize: screenSize);
     } else {
-      print("Token not empty");
       String email = await getEmail() ?? '';
       String password = await getPassword() ?? '';
       nextPage = await checkLoginStatus(email, password, token);
@@ -60,7 +59,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<Widget> checkLoginStatus(String email, String password, String token) async {
-    print("Login status");
     String encryptedPassword = await encrypt(password);
     String apiUrl = '${url}auth/login';
     final response = await http.post(
@@ -78,26 +76,17 @@ class _SplashScreenState extends State<SplashScreen> {
 
     String tokenId = responseBody[0];
 
-    print(responseBody[1]);
-
     if (tokenId != token) {
       await saveTokenId(tokenId);
     }
 
     if (UserType.MessOwner.name == responseBody[1]) {
-      print("Mess owner");
       return MessDashboardScreen(token: tokenId);
     } else if (UserType.Customer.name == responseBody[1]) {
-      // TODO: Navigate to 'Customer' dashboard with token
-      print("Customer");
-      return MessDashboardScreen(token: tokenId);
+      return CustomerDashboardScreen(token: tokenId);
     } else if (UserType.Admmin.name == responseBody[1]) {
-      print("Admin");
-      // TODO: Navigate to 'Admin' dashboard with token
-
-      return MessDashboardScreen(token: tokenId);
+      return AdminDashboardScreen(token: tokenId);
     } else {
-      print("In the else");
       return AuthScreen(screenSize: MediaQuery.of(context).size);
     }
   }
