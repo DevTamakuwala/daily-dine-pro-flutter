@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import '../credentials/api_url.dart';
 import '../encryption/encrypt_text.dart';
 import '../enums/user_types.dart';
+import 'Auth/registration_successful_screen.dart';
 import 'user/mess_owner/mess_dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -58,7 +59,8 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  Future<Widget> checkLoginStatus(String email, String password, String token) async {
+  Future<Widget> checkLoginStatus(
+      String email, String password, String token) async {
     String encryptedPassword = await encrypt(password);
     String apiUrl = '${url}auth/login';
     final response = await http.post(
@@ -75,12 +77,16 @@ class _SplashScreenState extends State<SplashScreen> {
     List<String> responseBody = response.body.split(" ");
 
     String tokenId = responseBody[0];
+    String visible = responseBody[2];
 
     if (tokenId != token) {
       await saveTokenId(tokenId);
     }
 
     if (UserType.MessOwner.name == responseBody[1]) {
+      if (visible == "false") {
+        return RegistrationSuccessfulScreen();
+      }
       return MessDashboardScreen(token: tokenId);
     } else if (UserType.Customer.name == responseBody[1]) {
       return CustomerDashboardScreen(token: tokenId);

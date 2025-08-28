@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'auth_screen.dart';
+
 // This is a standalone screen to show after a successful registration.
 class RegistrationSuccessfulScreen extends StatefulWidget {
   const RegistrationSuccessfulScreen({super.key});
@@ -91,6 +95,22 @@ class _RegistrationSuccessfulScreenState extends State<RegistrationSuccessfulScr
             ),
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          SharedPreferences prefs =
+              await SharedPreferences.getInstance();
+          prefs.clear();
+          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (builder) => AuthScreen(
+                  screenSize: MediaQuery.of(context).size),
+            ),
+          );
+        },
+        child: const Icon(Icons.arrow_back),
       ),
     );
   }

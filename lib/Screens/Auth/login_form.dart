@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
+import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
@@ -56,14 +57,14 @@ class _LoginformState extends State<LoginForm> {
         const SizedBox(height: 24),
         // buildSubmitButton(
         //     label: "customer_dashborad",
-            // onPressed: () async {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           // builder: (context) => CustomerDashboardScreen()));
-            //           builder: (context) => AdminDashboardScreen()));
-            // }
-            // ),
+        // onPressed: () async {
+        //   Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //           // builder: (context) => CustomerDashboardScreen()));
+        //           builder: (context) => AdminDashboardScreen()));
+        // }
+        // ),
         const SizedBox(height: 15),
         buildSubmitButton(
             label: "Login",
@@ -115,13 +116,12 @@ class _LoginformState extends State<LoginForm> {
       }),
     );
 
-    List<String> responseBody = response.body.split(" ");
-
-    String tokenId = responseBody[0];
-
     print(response.body);
 
     if (response.statusCode == 302) {
+      List<String> responseBody = response.body.split(" ");
+      String tokenId = responseBody[0];
+      String visible = responseBody[2];
       await saveTokenId(tokenId);
       await saveEmail(email);
       await savePassword(password);
@@ -129,13 +129,22 @@ class _LoginformState extends State<LoginForm> {
       Navigator.pop(context);
       switch (responseBody[1]) {
         case "MessOwner":
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              //builder: (builder) => Hello(token: response.body),
-              builder: (builder) => MessDashboardScreen(token: tokenId),
-            ),
-          );
+          if (visible == "false") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                //builder: (builder) => Hello(token: response.body),
+                builder: (builder) => RegistrationSuccessfulScreen(),
+              ),
+            );
+          } else if (visible == "true") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (builder) => MessDashboardScreen(token: tokenId),
+              ),
+            );
+          }
 
         case "Customer":
           Navigator.push(
