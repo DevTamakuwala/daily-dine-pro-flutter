@@ -12,18 +12,7 @@ class VerifyTwoFactorScreen extends StatefulWidget {
 class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
   final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-
-  @override
-  void initState() {
-    super.initState();
-    for (int i = 0; i < 5; i++) {
-      _otpControllers[i].addListener(() {
-        if (_otpControllers[i].text.isNotEmpty) {
-          _focusNodes[i+1].requestFocus();
-        }
-      });
-    }
-  }
+  
 
   @override
   void dispose() {
