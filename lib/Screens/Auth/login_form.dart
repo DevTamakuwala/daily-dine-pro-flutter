@@ -16,7 +16,7 @@ import '../user/admin/admin_dashboard_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
 import 'two_factor/setup_two_factor_screen.dart';
-import '../user/admin/verify_mess_details_screen.dart';
+import '../user/admin/tabs/verify_mess_details_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -63,7 +63,7 @@ class _LoginformState extends State<LoginForm> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  // builder: (context) => CustomerDashboardScreen()));
+                  //builder: (context) => CustomerDashboardScreen()));
                   builder: (context) => VerifyMessDetailsScreen()));
 
 
