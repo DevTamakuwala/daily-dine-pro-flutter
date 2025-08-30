@@ -38,6 +38,7 @@ dependencies:
   shared_preferences: any
   pointycastle: ^3.7.2
   intl: ^0.18.1
+  geolocator: ^10.1.0
 
 dev_dependencies:
   flutter_test:

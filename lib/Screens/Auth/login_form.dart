@@ -16,6 +16,7 @@ import '../user/admin/admin_dashboard_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
 import 'two_factor/setup_two_factor_screen.dart';
+import '../user/admin/verify_mess_details_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -57,13 +58,13 @@ class _LoginformState extends State<LoginForm> {
             obscureText: true),
         const SizedBox(height: 24),
         buildSubmitButton(
-            label: "customer_dashborad",
+            label: "VerifyMessDetailsScreen",
         onPressed: () async {
           Navigator.push(
               context,
               MaterialPageRoute(
                   // builder: (context) => CustomerDashboardScreen()));
-                  builder: (context) => VerifyTwoFactorScreen()));
+                  builder: (context) => VerifyMessDetailsScreen()));
 
 
         }
