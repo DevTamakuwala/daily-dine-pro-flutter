@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
+import 'package:dailydine/Screens/Auth/two_factor/setup_two_factor_screen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
@@ -13,10 +14,9 @@ import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
 import '../user/admin/admin_dashboard_screen.dart';
+import '../user/admin/tabs/verify_mess_details_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
-import 'two_factor/setup_two_factor_screen.dart';
-import '../user/admin/tabs/verify_mess_details_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -59,16 +59,27 @@ class _LoginformState extends State<LoginForm> {
         const SizedBox(height: 24),
         buildSubmitButton(
             label: "VerifyMessDetailsScreen",
-        onPressed: () async {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
                   //builder: (context) => CustomerDashboardScreen()));
-                  builder: (context) => VerifyMessDetailsScreen()));
-
-
-        }
-        ),
+                  builder: (context) => VerifyMessDetailsScreen(),
+                ),
+              );
+            }),
+        const SizedBox(height: 15),
+        buildSubmitButton(
+            label: "Setup Two factor",
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  //builder: (context) => CustomerDashboardScreen()));
+                  builder: (context) => VerifyTwoFactorScreen(),
+                ),
+              );
+            }),
         const SizedBox(height: 15),
         buildSubmitButton(
             label: "Login",
@@ -86,9 +97,11 @@ class _LoginformState extends State<LoginForm> {
               // CHANGE: Navigate to the ForgotPasswordScreen when the "Forgot Password?" button is tapped.
               print("Forgot Password tapped!");
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ForgotPasswordScreen()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ForgotPasswordScreen(),
+                ),
+              );
             },
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFFFF9800), // A nice Google blue
@@ -105,6 +118,7 @@ class _LoginformState extends State<LoginForm> {
   Future<void> handleLogin(
       String email, String password, BuildContext context) async {
     print("Handler called");
+    print(url);
     String encryptedPassword = await encrypt(password);
     String apiUrl = '${url}auth/login';
     print(apiUrl);
