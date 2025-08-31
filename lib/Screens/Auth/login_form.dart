@@ -14,9 +14,10 @@ import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
 import '../user/admin/admin_dashboard_screen.dart';
-import '../user/admin/tabs/verify_mess_details_screen.dart';
+import '../user/admin/verify_mess_details_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
+import '../Auth/two_factor/setup_mfa_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -76,7 +77,7 @@ class _LoginformState extends State<LoginForm> {
                 context,
                 MaterialPageRoute(
                   //builder: (context) => CustomerDashboardScreen()));
-                  builder: (context) => VerifyTwoFactorScreen(),
+                  builder: (context) => SetupMfaScreen(),
                 ),
               );
             }),

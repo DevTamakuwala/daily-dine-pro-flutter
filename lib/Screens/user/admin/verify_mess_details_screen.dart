@@ -1,30 +1,10 @@
-//import 'package.flutter/material.dart';
-//import 'package:geolocator/geolocator.dart'; // You need to add this package to your pubspec.yaml
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
-// Note: To use this screen, you must add the 'geolocator' package to your pubspec.yaml:
-// dependencies:
-//   flutter:
-//     sdk: flutter
-//   geolocator: ^10.1.0 # Or the latest version
-//
-// You also need to add location permissions for Android and iOS.
-// Android: Add the following to your android/app/src/main/AndroidManifest.xml
-// <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-// <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-//
-// iOS: Add the following to your ios/Runner/Info.plist
-// <key>NSLocationWhenInUseUsageDescription</key>
-// <string>This app needs access to location to verify the mess address.</string>
+// Note: Ensure you have the 'geolocator' package and the necessary permissions set up.
 
 // A detailed screen for an admin to verify a mess owner's details and location.
 class VerifyMessDetailsScreen extends StatefulWidget {
-  // In a real app, you would pass the mess owner's data to this screen.
-  // final MessOwnerData messOwner;
-  // const VerifyMessDetailsScreen({super.key, required this.messOwner});
-
   const VerifyMessDetailsScreen({super.key});
 
   @override
@@ -32,12 +12,24 @@ class VerifyMessDetailsScreen extends StatefulWidget {
 }
 
 class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
+  // --- State Variables ---
   final TextEditingController _latitudeController = TextEditingController();
   final TextEditingController _longitudeController = TextEditingController();
+
   bool _isFetchingLocation = false;
   String? _locationError;
+  bool _locationFetched = false; // New state to track if location has been fetched
+  bool _isEditing = false; // New state to track if the details are being edited
 
-  // --- Mock Data (replace with actual data from your model) ---
+  // --- Controllers for Editable Fields ---
+  late TextEditingController _messNameController;
+  late TextEditingController _ownerNameController;
+  late TextEditingController _addressController;
+  late TextEditingController _phoneController;
+  late TextEditingController _emailController;
+
+
+  // --- Mock Data (will be loaded into controllers) ---
   final Map<String, String> _messOwnerData = {
     "messName": "Shree Krishna Mess",
     "ownerName": "Rajesh Gupta",
@@ -47,13 +39,29 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
   };
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with mock data
+    _messNameController = TextEditingController(text: _messOwnerData['messName']);
+    _ownerNameController = TextEditingController(text: _messOwnerData['ownerName']);
+    _addressController = TextEditingController(text: _messOwnerData['address']);
+    _phoneController = TextEditingController(text: _messOwnerData['phone']);
+    _emailController = TextEditingController(text: _messOwnerData['email']);
+  }
+
+
+  @override
   void dispose() {
     _latitudeController.dispose();
     _longitudeController.dispose();
+    _messNameController.dispose();
+    _ownerNameController.dispose();
+    _addressController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  // --- Function to get the current GPS coordinates ---
   Future<void> _getCurrentLocation() async {
     setState(() {
       _isFetchingLocation = true;
@@ -61,45 +69,50 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
     });
 
     try {
-      // 1. Check for permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          setState(() {
-            _locationError = "Location permissions are denied.";
-          });
+          setState(() => _locationError = "Location permissions are denied.");
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        setState(() {
-          _locationError = "Location permissions are permanently denied. Please enable them in settings.";
-        });
+        setState(() => _locationError = "Location permissions are permanently denied.");
         return;
       }
 
-      // 2. Get the current position
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-      // 3. Update the text fields
       setState(() {
         _latitudeController.text = position.latitude.toString();
         _longitudeController.text = position.longitude.toString();
+        _locationFetched = true; // Enable the approve button
       });
 
     } catch (e) {
-      setState(() {
-        _locationError = "Could not get location: $e";
-      });
+      setState(() => _locationError = "Could not get location: $e");
     } finally {
-      setState(() {
-        _isFetchingLocation = false;
-      });
+      setState(() => _isFetchingLocation = false);
     }
+  }
+
+  void _toggleEdit() {
+    setState(() {
+      _isEditing = !_isEditing;
+    });
+  }
+
+  void _saveDetails() {
+    // In a real app, you would save the data from the controllers here.
+    // For this example, we just exit the editing mode.
+    setState(() {
+      _isEditing = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Details saved!"), backgroundColor: Colors.green),
+    );
   }
 
 
@@ -117,15 +130,10 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Owner Details Card ---
             _buildDetailsCard(),
             const SizedBox(height: 24),
-
-            // --- Location Verification Card ---
             _buildLocationCard(),
             const SizedBox(height: 32),
-
-            // --- Action Buttons ---
             _buildActionButtons(),
           ],
         ),
@@ -142,20 +150,67 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _messOwnerData['messName']!,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _isEditing
+                    ? Expanded(child: _buildEditableField(_messNameController, "Mess Name", isTitle: true))
+                    : Text(_messNameController.text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                IconButton(
+                  icon: Icon(_isEditing ? Icons.close : Icons.edit_outlined),
+                  onPressed: _toggleEdit,
+                  tooltip: _isEditing ? "Cancel" : "Edit Details",
+                ),
+              ],
             ),
             const Divider(height: 20),
-            _buildDetailRow(Icons.person_outline, "Owner Name", _messOwnerData['ownerName']!),
-            _buildDetailRow(Icons.location_on_outlined, "Address", _messOwnerData['address']!),
-            _buildDetailRow(Icons.phone_outlined, "Phone", _messOwnerData['phone']!),
-            _buildDetailRow(Icons.email_outlined, "Email", _messOwnerData['email']!),
+            _isEditing
+                ? Column(
+              children: [
+                _buildEditableField(_ownerNameController, "Owner Name"),
+                const SizedBox(height: 12),
+                _buildEditableField(_addressController, "Address"),
+                const SizedBox(height: 12),
+                _buildEditableField(_phoneController, "Phone", keyboardType: TextInputType.phone),
+                const SizedBox(height: 12),
+                _buildEditableField(_emailController, "Email", keyboardType: TextInputType.emailAddress),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saveDetails,
+                    child: const Text("Save Changes"),
+                  ),
+                )
+              ],
+            )
+                : Column(
+              children: [
+                _buildDetailRow(Icons.person_outline, "Owner Name", _ownerNameController.text),
+                _buildDetailRow(Icons.location_on_outlined, "Address", _addressController.text),
+                _buildDetailRow(Icons.phone_outlined, "Phone", _phoneController.text),
+                _buildDetailRow(Icons.email_outlined, "Email", _emailController.text),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildEditableField(TextEditingController controller, String label, {bool isTitle = false, TextInputType? keyboardType}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: TextStyle(fontSize: isTitle ? 22 : 16, fontWeight: isTitle ? FontWeight.bold : FontWeight.normal),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+    );
+  }
+
 
   Widget _buildLocationCard() {
     return Card(
@@ -166,20 +221,13 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Location Verification",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+            const Text("Location Verification", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(
-                  child: _buildCoordinateField("Latitude", _latitudeController),
-                ),
+                Expanded(child: _buildCoordinateField("Latitude", _latitudeController)),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildCoordinateField("Longitude", _longitudeController),
-                ),
+                Expanded(child: _buildCoordinateField("Longitude", _longitudeController)),
               ],
             ),
             const SizedBox(height: 16),
@@ -212,15 +260,12 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
   Widget _buildCoordinateField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
-      readOnly: true, // This makes the field disabled
+      readOnly: true,
       decoration: InputDecoration(
         labelText: label,
         filled: true,
-        fillColor: Colors.grey.shade200, // Visual cue for being disabled
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
+        fillColor: Colors.grey.shade200,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
       ),
     );
   }
@@ -230,9 +275,7 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: () {
-              // TODO: Implement reject logic
-            },
+            onPressed: () { /* TODO: Implement reject logic */ },
             style: OutlinedButton.styleFrom(
               foregroundColor: Colors.red,
               side: const BorderSide(color: Colors.red),
@@ -244,13 +287,14 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              // TODO: Implement approve logic
-            },
+            // --- CHANGE: Button is disabled if location has not been fetched ---
+            onPressed: _locationFetched ? () { /* TODO: Implement approve logic */ } : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
+              // --- CHANGE: Add a disabled style ---
+              disabledBackgroundColor: Colors.grey.shade400,
             ),
             child: const Text("Approve", style: TextStyle(fontSize: 16)),
           ),
@@ -283,3 +327,4 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
     );
   }
 }
+

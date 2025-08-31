@@ -3,7 +3,7 @@ import 'backup_code_screen.dart';
 
 // This screen is shown when a user needs to verify their login with a 2FA code.
 class VerifyTwoFactorScreen extends StatefulWidget {
-  const VerifyTwoFactorScreen({super.key});
+  const VerifyTwoFactorScreen({super.key, required bool isInitialSetup});
 
   @override
   State<VerifyTwoFactorScreen> createState() => _VerifyTwoFactorScreenState();
@@ -136,10 +136,7 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
                 const Text("•"),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => BackupCodeScreen()));
+
                   },
                   child: const Text(
                     "Use a backup code",

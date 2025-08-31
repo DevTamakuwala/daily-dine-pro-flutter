@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Import the new, separate screen files for each tab
 import 'tabs/admin_home_screen.dart';
-import 'tabs/verify_mess_details_screen.dart';
+import 'tabs/verify_mess_owner_screen.dart';
 import 'tabs/update_mess_data_screen.dart';
 import 'tabs/add_location_screen.dart';
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
@@ -24,7 +24,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   // List of the different pages for the admin, now referencing the imported screens
   static const List<Widget> _widgetOptions = <Widget>[
     AdminHomeScreen(),
-    VerifyMessDetailsScreen(),
+    VerifyMessOwnerScreen(),
     UpdateMessDataScreen(),
     AddLocationScreen(),
   ];

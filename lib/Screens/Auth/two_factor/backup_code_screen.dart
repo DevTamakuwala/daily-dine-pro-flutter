@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-// This screen allows a user to log in using one of their single-use backup codes.
-class BackupCodeScreen extends StatefulWidget {
-  const BackupCodeScreen({super.key});
+// A screen to display the user's generated backup codes after setting up 2FA.
+class BackupCodesScreen extends StatelessWidget {
+  final List<String> backupCodes;
 
-  @override
-  State<BackupCodeScreen> createState() => _BackupCodeScreenState();
-}
+  const BackupCodesScreen({super.key, required this.backupCodes});
 
-class _BackupCodeScreenState extends State<BackupCodeScreen> {
-  final TextEditingController _backupCodeController = TextEditingController();
+  void _copyCodesToClipboard(BuildContext context) {
+    final allCodes = backupCodes.join('\n');
+    Clipboard.setData(ClipboardData(text: allCodes));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("All backup codes copied to clipboard!")),
+    );
+  }
 
-  @override
-  void dispose() {
-    _backupCodeController.dispose();
-    super.dispose();
+  void _finishSetup(BuildContext context) {
+    // In a real app, you would navigate the user to their dashboard or settings page.
+    // For now, we'll just pop back twice to exit the 2FA setup flow.
+    Navigator.of(context)..pop()..pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Use a Backup Code"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 1,
+        title: const Text("Your Backup Codes"),
+        automaticallyImplyLeading: false, // Prevents user from going back
       ),
       backgroundColor: const Color(0xFFF4F6F8),
       body: Padding(
@@ -32,67 +34,70 @@ class _BackupCodeScreenState extends State<BackupCodeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 20),
-            const Icon(Icons.password_rounded, size: 60, color: Colors.orange),
-            const SizedBox(height: 24),
+            const Icon(Icons.shield_outlined, size: 64, color: Colors.blue),
+            const SizedBox(height: 16),
             const Text(
-              "Enter Backup Code",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              "Save Your Backup Codes",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
-              "Please enter one of your 6-digit backup codes to continue.",
+              "Store these codes in a safe place. They can be used to log in if you lose access to your authenticator app.",
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
             ),
-            const SizedBox(height: 40),
-
-            // --- Backup Code Input Field ---
-            TextField(
-              controller: _backupCodeController,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, letterSpacing: 10, fontWeight: FontWeight.bold),
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              decoration: InputDecoration(
-                counterText: "",
-                hintText: "••••••",
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            const SizedBox(height: 24),
+            // --- Codes Display ---
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: GridView.builder(
+                shrinkWrap: true,
+                itemCount: backupCodes.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 3.5,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.orange.shade700, width: 2),
-                ),
+                itemBuilder: (context, index) {
+                  return Center(
+                    child: Text(
+                      backupCodes[index],
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 40),
-
-            // --- Verify Button ---
+            const SizedBox(height: 16),
+            TextButton.icon(
+              icon: const Icon(Icons.copy),
+              label: const Text("Copy Codes"),
+              onPressed: () => _copyCodesToClipboard(context),
+            ),
+            const Spacer(),
+            // --- Done Button ---
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                onPressed: () => _finishSetup(context),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.orange.shade700,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
-                  final backupCode = _backupCodeController.text;
-                  // TODO: Add logic to verify the backup code with your backend.
-                  print("Entered Backup Code: $backupCode");
-                },
-                child: const Text(
-                  "Verify & Log In",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: const Text("Done"),
               ),
             ),
-            const Spacer(),
           ],
         ),
       ),
