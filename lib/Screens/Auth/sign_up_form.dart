@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dailydine/Screens/Auth/two_factor/enable_two_factor.dart';
 import 'package:dailydine/Screens/user/mess_owner/mess_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,10 +9,10 @@ import 'package:intl/intl.dart'; // CHANGE: Import for date formatting
 import '../../credentials/api_url.dart';
 import '../../encryption/encrypt_text.dart';
 import '../../enums/user_types.dart';
+import '../../service/save_shared_preference.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
-import '../user/customer/customer_dashboard_screen.dart';
 
 class SignupForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -32,16 +33,19 @@ class _SignupFormState extends State<SignupForm> {
 
   // Mess Owner Controllers
   final _messNameController = TextEditingController();
+
   // CHANGE: Added separate controllers for first and last name for Mess Owner.
   final _ownerFirstNameController = TextEditingController();
   final _ownerLastNameController = TextEditingController();
   final _addressController = TextEditingController();
+
   // CHANGE: Added controllers for city, zip code, and state for Mess Owner.
   final _messOwnerCityController = TextEditingController();
   final _zipCodeController = TextEditingController();
   final _stateController = TextEditingController();
   final _ownerPasswordController = TextEditingController();
   final _ownerConfirmPasswordController = TextEditingController();
+
   // CHANGE: New controller for establishment date picker.
   final _establishmentDateController =
       TextEditingController(); // New controller for establishment date
@@ -75,7 +79,8 @@ class _SignupFormState extends State<SignupForm> {
     _ownerConfirmPasswordController.dispose();
     _customerPasswordController.dispose();
     _customerConfirmPasswordController.dispose();
-    _establishmentDateController.dispose(); // CHANGE: Dispose the new controller
+    _establishmentDateController
+        .dispose(); // CHANGE: Dispose the new controller
     super.dispose();
   }
 
@@ -290,7 +295,7 @@ class _SignupFormState extends State<SignupForm> {
                       int.parse(_zipCodeController.text),
                       _messOwnerCityController.text,
                       _stateController.text,
-                      _establishmentDateController.text); 
+                      _establishmentDateController.text);
                 }
               }),
         ],
@@ -305,17 +310,27 @@ class _SignupFormState extends State<SignupForm> {
         key: const ValueKey('customerForm'),
         mainAxisSize: MainAxisSize.min,
         children: [
-          buildTextFormField(
-              controller: _customerFirstNameController,
-              label: "First Name",
-              icon: Icons.person_outline,
-              validator: (v) => v!.isEmpty ? "First Name is required" : null),
-          const SizedBox(height: 12),
-          buildTextFormField(
-              controller: _customerLastNameController,
-              label: "Last Name",
-              icon: Icons.person_outline,
-              validator: (v) => v!.isEmpty ? "Last Name is required" : null),
+          Row(
+            children: [
+              Expanded(
+                child: buildTextFormField(
+                    controller: _customerFirstNameController,
+                    label: "First Name",
+                    icon: Icons.person_outline,
+                    validator: (v) =>
+                        v!.isEmpty ? "First Name is required" : null),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: buildTextFormField(
+                    controller: _customerLastNameController,
+                    label: "Last Name",
+                    icon: Icons.person_outline,
+                    validator: (v) =>
+                        v!.isEmpty ? "Last Name is required" : null),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
           buildTextFormField(
               controller: _customerPhoneController,
@@ -471,10 +486,14 @@ class _SignupFormState extends State<SignupForm> {
     );
 
     if (response.statusCode == 201) {
+      saveTokenId(response.body);
+      saveUserRole(_selectedUserType.name);
+      saveEmail(email);
+      savePassword(password);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (builder) => CustomerDashboardScreen(token: response.body),
+          builder: (builder) => EnableTwoFactor(idToken: response.body),
         ),
       );
     } else {
@@ -541,6 +560,10 @@ class _SignupFormState extends State<SignupForm> {
     );
 
     if (response.statusCode == 201) {
+      saveTokenId(response.body);
+      saveUserRole(_selectedUserType.name);
+      saveEmail(email);
+      savePassword(password);
       Navigator.push(
         context,
         MaterialPageRoute(

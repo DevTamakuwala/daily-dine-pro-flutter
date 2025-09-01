@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
-import 'package:dailydine/Screens/Auth/two_factor/setup_two_factor_screen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
@@ -13,11 +12,11 @@ import '../../credentials/api_url.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
+import '../Auth/two_factor/setup_mfa_screen.dart';
 import '../user/admin/admin_dashboard_screen.dart';
 import '../user/admin/verify_mess_details_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
-import '../Auth/two_factor/setup_mfa_screen.dart';
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -71,21 +70,8 @@ class _LoginformState extends State<LoginForm> {
             }),
         const SizedBox(height: 15),
         buildSubmitButton(
-            label: "Setup Two factor",
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  //builder: (context) => CustomerDashboardScreen()));
-                  builder: (context) => SetupMfaScreen(),
-                ),
-              );
-            }),
-        const SizedBox(height: 15),
-        buildSubmitButton(
             label: "Login",
             onPressed: () async {
-              print("Login tapped");
               String email = _loginEmailController.text;
               String password = _loginPasswordController.text;
               await handleLogin(email, password, context);
@@ -96,7 +82,6 @@ class _LoginformState extends State<LoginForm> {
           child: TextButton(
             onPressed: () {
               // CHANGE: Navigate to the ForgotPasswordScreen when the "Forgot Password?" button is tapped.
-              print("Forgot Password tapped!");
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -118,11 +103,8 @@ class _LoginformState extends State<LoginForm> {
 
   Future<void> handleLogin(
       String email, String password, BuildContext context) async {
-    print("Handler called");
-    print(url);
     String encryptedPassword = await encrypt(password);
     String apiUrl = '${url}auth/login';
-    print(apiUrl);
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
@@ -134,8 +116,6 @@ class _LoginformState extends State<LoginForm> {
         "password": encryptedPassword,
       }),
     );
-
-    print(response.body);
 
     if (response.statusCode == 302) {
       List<String> responseBody = response.body.split(" ");
@@ -207,7 +187,6 @@ class _LoginformState extends State<LoginForm> {
           content: Text(response.body),
         ),
       );
-      // print('Failed: ${response.statusCode} - ${response.body}');
     }
   }
 }
