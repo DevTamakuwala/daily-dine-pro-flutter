@@ -1,9 +1,12 @@
+import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../user/customer/customer_dashboard_screen.dart';
+
 // A screen to display the user's generated backup codes after setting up 2FA.
 class BackupCodesScreen extends StatelessWidget {
-  final List<String> backupCodes;
+  final List<dynamic> backupCodes;
 
   const BackupCodesScreen({super.key, required this.backupCodes});
 
@@ -15,10 +18,17 @@ class BackupCodesScreen extends StatelessWidget {
     );
   }
 
-  void _finishSetup(BuildContext context) {
+  Future<void> _finishSetup(BuildContext context) async {
     // In a real app, you would navigate the user to their dashboard or settings page.
     // For now, we'll just pop back twice to exit the 2FA setup flow.
-    Navigator.of(context)..pop()..pop();
+    String? idToken = await getTokenId();
+    Navigator.of(context)
+      ..pop()
+      ..pop();
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (builder) => CustomerDashboardScreen(
+              token: idToken ?? "",
+            )));
   }
 
   @override
@@ -93,7 +103,8 @@ class BackupCodesScreen extends StatelessWidget {
                 onPressed: () => _finishSetup(context),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textStyle: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 child: const Text("Done"),
               ),

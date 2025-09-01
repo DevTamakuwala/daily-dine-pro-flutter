@@ -5,7 +5,8 @@ import '../../Auth/auth_screen.dart';
 
 // This is the main screen that holds the BottomNavigationBar for the customer.
 class CustomerDashboardScreen extends StatefulWidget {
-  const CustomerDashboardScreen({super.key, required String token});
+  final String token;
+  const CustomerDashboardScreen({super.key, required this.token});
 
   @override
   State<CustomerDashboardScreen> createState() =>

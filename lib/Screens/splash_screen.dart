@@ -6,6 +6,7 @@ import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../credentials/api_url.dart';
 import '../encryption/encrypt_text.dart';
@@ -74,26 +75,40 @@ class _SplashScreenState extends State<SplashScreen> {
       }),
     );
 
-    List<String> responseBody = response.body.split(" ");
+    if (response.statusCode == 302) {
+      List<String> responseBody = response.body.split(" ");
 
-    String tokenId = responseBody[0];
-    String visible = responseBody[2];
+      String tokenId = responseBody[0];
+      String visible = responseBody[2];
 
-    if (tokenId != token) {
-      await saveTokenId(tokenId);
-    }
-
-    if (UserType.MessOwner.name == responseBody[1]) {
-      if (visible == "false") {
-        return RegistrationSuccessfulScreen();
+      if (tokenId != token) {
+        await saveTokenId(tokenId);
       }
-      return MessDashboardScreen(token: tokenId);
-    } else if (UserType.Customer.name == responseBody[1]) {
-      return CustomerDashboardScreen(token: tokenId);
-    } else if (UserType.Admmin.name == responseBody[1]) {
-      return AdminDashboardScreen(token: tokenId);
+
+      if (UserType.MessOwner.name == responseBody[1]) {
+        if (visible == "false") {
+          return RegistrationSuccessfulScreen();
+        }
+        return MessDashboardScreen(token: tokenId);
+      } else if (UserType.Customer.name == responseBody[1]) {
+        return CustomerDashboardScreen(token: tokenId);
+      } else if (UserType.Admmin.name == responseBody[1]) {
+        return AdminDashboardScreen(token: tokenId);
+      } else {
+        SharedPreferences prefs =
+        await SharedPreferences.getInstance();
+        prefs.clear();
+        return AuthScreen(screenSize: MediaQuery
+            .of(context)
+            .size);
+      }
     } else {
-      return AuthScreen(screenSize: MediaQuery.of(context).size);
+      SharedPreferences prefs =
+      await SharedPreferences.getInstance();
+      prefs.clear();
+      return AuthScreen(screenSize: MediaQuery
+          .of(context)
+          .size);
     }
   }
 

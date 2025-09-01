@@ -1,21 +1,46 @@
-import 'package:flutter/material.dart';
-import 'backup_code_screen.dart';
+// Screen for verifying Two-Factor Authentication setup or login
+// Handles both initial setup verification and ongoing login verification
+import 'dart:convert';
 
-// This screen is shown when a user needs to verify their login with a 2FA code.
+import 'package:dailydine/Screens/Auth/two_factor/backup_code_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../credentials/api_url.dart';
+import '../../user/customer/customer_dashboard_screen.dart';
+
 class VerifyTwoFactorScreen extends StatefulWidget {
-  const VerifyTwoFactorScreen({super.key, required bool isInitialSetup});
+  // Authentication token for secure API calls
+  final String idToken;
+  // User's email for MFA verification
+  final String email;
+  // Whether this is the initial MFA setup or a login verification
+  final bool isInitialSetup;
+  // Response from the MFA setup API containing verification details
+  final Map<String, dynamic> responseBody;
+
+  const VerifyTwoFactorScreen({
+    super.key,
+    required this.isInitialSetup,
+    required this.idToken,
+    required this.email,
+    required this.responseBody,
+  });
 
   @override
   State<VerifyTwoFactorScreen> createState() => _VerifyTwoFactorScreenState();
 }
 
 class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
-  final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
+  // Controllers for the 6-digit OTP input fields
+  final List<TextEditingController> _otpControllers =
+      List.generate(6, (_) => TextEditingController());
+  // Focus nodes for handling input field navigation
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-  
 
   @override
   void dispose() {
+    // Clean up controllers and focus nodes to prevent memory leaks
     for (var controller in _otpControllers) {
       controller.dispose();
     }
@@ -25,6 +50,7 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
     super.dispose();
   }
 
+  // Combines the 6 digits into a single OTP string
   String _getOtp() {
     return _otpControllers.map((controller) => controller.text).join();
   }
@@ -70,7 +96,8 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
                     controller: _otpControllers[index],
                     focusNode: _focusNodes[index],
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                     keyboardType: TextInputType.number,
                     maxLength: 1,
                     decoration: InputDecoration(
@@ -83,7 +110,8 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.orange.shade700, width: 2),
+                        borderSide:
+                            BorderSide(color: Colors.orange.shade700, width: 2),
                       ),
                     ),
                     onChanged: (value) {
@@ -107,12 +135,13 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: Colors.orange.shade700,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   final otp = _getOtp();
-                  // TODO: Add logic to verify the OTP with your backend.
-                  print("Entered OTP: $otp");
+                  await verifyOtp(otp);
                 },
                 child: const Text(
                   "Verify",
@@ -121,34 +150,69 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
               ),
             ),
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    // TODO: Add logic for helping the user
-                  },
-                  child: const Text(
-                    "Having trouble?",
-                    style: TextStyle(color: Colors.orange),
+            if (!widget.isInitialSetup)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Add logic for helping the user
+                    },
+                    child: const Text(
+                      "Having trouble? • Use a backup code",
+                      style: TextStyle(color: Colors.orange),
+                    ),
                   ),
-                ),
-                const Text("•"),
-                TextButton(
-                  onPressed: () {
-
-                  },
-                  child: const Text(
-                    "Use a backup code",
-                    style: TextStyle(color: Colors.orange),
-                  ),
-                ),
-              ],
-            )
+                ],
+              )
           ],
         ),
       ),
     );
   }
-}
 
+  Future<void> verifyOtp(String otp) async {
+    String apiUrl = '${url}mfa/verify';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${widget.idToken}"
+      },
+      body: jsonEncode({
+        'email': widget.email,
+        'code': otp,
+      }),
+    );
+
+    // Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      if (widget.isInitialSetup) {
+        Navigator.of(context)..pop()..pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BackupCodesScreen(
+              backupCodes: widget.responseBody["backupCodes"],
+            ),
+          ),
+        );
+      } else {
+        Navigator.of(context)..pop()..pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (builder) => CustomerDashboardScreen(
+              token: widget.idToken,
+            ),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Incorrect Code")),
+      );
+    }
+  }
+}
