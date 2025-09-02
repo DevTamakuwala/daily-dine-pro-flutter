@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'approval_successful_screen.dart';
 
 // Note: Ensure you have the 'geolocator' package and the necessary permissions set up.
 
@@ -154,7 +155,7 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _isEditing
-                    ? Expanded(child: _buildEditableField(_messNameController, "Mess Name", isTitle: true))
+                    ? Expanded(child: _buildEditableField(_messNameController, "Mess Name", isTitle: true, enabled: false)) // <-- CHANGE HERE
                     : Text(_messNameController.text, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 IconButton(
                   icon: Icon(_isEditing ? Icons.close : Icons.edit_outlined),
@@ -198,14 +199,21 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
     );
   }
 
-  Widget _buildEditableField(TextEditingController controller, String label, {bool isTitle = false, TextInputType? keyboardType}) {
+  Widget _buildEditableField(TextEditingController controller, String label, {bool isTitle = false, TextInputType? keyboardType, bool enabled = true}) {
     return TextFormField(
       controller: controller,
+      enabled: enabled, // Use the enabled parameter
       keyboardType: keyboardType,
-      style: TextStyle(fontSize: isTitle ? 22 : 16, fontWeight: isTitle ? FontWeight.bold : FontWeight.normal),
+      style: TextStyle(
+        fontSize: isTitle ? 22 : 16,
+        fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
+        color: enabled ? Colors.black87 : Colors.grey.shade700, // Change color when disabled
+      ),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
+        filled: !enabled, // Add a fill color when disabled
+        fillColor: Colors.grey.shade200, // The fill color
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
     );
@@ -287,13 +295,24 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
-            // --- CHANGE: Button is disabled if location has not been fetched ---
-            onPressed: _locationFetched ? () { /* TODO: Implement approve logic */ } : null,
+            // START of CHANGE
+            onPressed: _locationFetched
+                ? () {
+              // TODO: Implement your API call to approve the mess owner here.
+              // On success, navigate to the new screen.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ApprovalSuccessfulScreen(),
+                ),
+              );
+            }
+                : null,
+            // END of CHANGE
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
-              // --- CHANGE: Add a disabled style ---
               disabledBackgroundColor: Colors.grey.shade400,
             ),
             child: const Text("Approve", style: TextStyle(fontSize: 16)),
