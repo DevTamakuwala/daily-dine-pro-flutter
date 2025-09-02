@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
+import 'package:dailydine/Screens/Auth/two_factor/verify_two_factor_screen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
@@ -12,7 +14,6 @@ import '../../credentials/api_url.dart';
 import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
-import '../Auth/two_factor/setup_mfa_screen.dart';
 import '../user/admin/admin_dashboard_screen.dart';
 import '../user/admin/verify_mess_details_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
@@ -119,17 +120,17 @@ class _LoginformState extends State<LoginForm> {
     );
 
     if (response.statusCode == 302) {
-      List<String> responseBody = response.body.split(" ");
-      String tokenId = responseBody[0];
-      String visible = responseBody[2];
+      Map<String, dynamic> responseBody = jsonDecode(response.body);
+      String tokenId = responseBody["Token"];
+      bool visible = responseBody["Visible"];
       await saveTokenId(tokenId);
       await saveEmail(email);
       await savePassword(password);
-      await saveUserRole(responseBody[1]);
+      await saveUserRole(responseBody["UserRole"]);
       Navigator.pop(context);
-      switch (responseBody[1]) {
+      switch (responseBody["UserRole"]) {
         case "MessOwner":
-          if (visible == "false") {
+          if (visible) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -137,32 +138,99 @@ class _LoginformState extends State<LoginForm> {
                 builder: (builder) => RegistrationSuccessfulScreen(),
               ),
             );
-          } else if (visible == "true") {
+          } else if (visible) {
+            if (!responseBody["MfaEnable"]) {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (builder) => MessDashboardScreen(token: tokenId),
+                ),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (builder) => VerifyTwoFactorScreen(
+                      isInitialSetup: false,
+                      idToken: tokenId,
+                      email: email,
+                      responseBody: responseBody),
+                ),
+              );
+            }
+          }
+
+        case "Customer":
+          if (visible) {
+            if (responseBody["MfaEnable"]) {
+              // Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (builder) => VerifyTwoFactorScreen(
+                      isInitialSetup: false,
+                      idToken: tokenId,
+                      email: email,
+                      responseBody: responseBody),
+                ),
+              );
+            } else {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  //builder: (builder) => Hello(token: response.body),
+                  builder: (builder) => CustomerDashboardScreen(token: tokenId),
+                ),
+              );
+            }
+          } else {
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (builder) => MessDashboardScreen(token: tokenId),
+                //builder: (builder) => Hello(token: response.body),
+                builder: (builder) => AuthScreen(
+                  screenSize: MediaQuery.of(context).size,
+                ),
               ),
             );
           }
 
-        case "Customer":
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              //builder: (builder) => Hello(token: response.body),
-              builder: (builder) => CustomerDashboardScreen(token: tokenId),
-            ),
-          );
-
         case "Admin":
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              //builder: (builder) => Hello(token: response.body),
-              builder: (builder) => AdminDashboardScreen(token: tokenId),
-            ),
-          );
+          if (visible) {
+            if (responseBody["MfaEnable"]) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (builder) => VerifyTwoFactorScreen(
+                      isInitialSetup: false,
+                      idToken: tokenId,
+                      email: email,
+                      responseBody: responseBody),
+                ),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  //builder: (builder) => Hello(token: response.body),
+                  builder: (builder) => AdminDashboardScreen(token: tokenId),
+                ),
+              );
+            }
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                //builder: (builder) => Hello(token: response.body),
+                builder: (builder) => AuthScreen(
+                  screenSize: MediaQuery.of(context).size,
+                ),
+              ),
+            );
+          }
 
         // Navigator.push(
         //   context,

@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'setup_two_factor_screen.dart';
+import 'verify_two_factor_screen.dart';
 
 // A screen for users to set up two-factor authentication using an authenticator app.
 class SetupMfaScreen extends StatefulWidget {
@@ -27,12 +27,10 @@ class SetupMfaScreen extends StatefulWidget {
 }
 
 class _SetupMfaScreenState extends State<SetupMfaScreen> {
-  // QR code image URL for authenticator app scanning
-  String _qrCodeImageUrl =
-      "https://placehold.co/250x250/EFEFEF/333333?text=QR+Code";
-  // Secret key for manual entry in authenticator app
-  String _secretKey = "JBSWY3DPEHPK3PXP"; // Example secret key
+  // Secret key for manual entry in authenticator app, initialized in initState.
+  late final String _secretKey;
 
+  // Method to copy the secret key to the clipboard and show a confirmation message.
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -43,8 +41,8 @@ class _SetupMfaScreenState extends State<SetupMfaScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize with values from the backend response
-    _qrCodeImageUrl = widget.response["qrCodeUri"];
+    // Initialize secretKey with value from the backend response.
+    // The qrCodeUri is used directly in the build method and doesn't need a state variable.
     _secretKey = widget.response["manualSetupKey"];
   }
 
@@ -71,14 +69,14 @@ class _SetupMfaScreenState extends State<SetupMfaScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
             ),
             const SizedBox(height: 24),
-            // --- QR Code Image ---
             // --- QR Code for MFA Setup ---
             Builder(
               builder: (context) {
-                // TODO: Replace this with the actual value from your backend
+                // Fetches the QR code URI from the widget's response data.
                 final String qrCodeUri = widget.response["qrCodeUri"];
                 final String base64Image = qrCodeUri.split(',').last;
                 try {
+                  // Decode the base64 string into bytes to be displayed as an image.
                   final bytes = base64Decode(base64Image);
                   return Column(
                     children: [
@@ -96,6 +94,7 @@ class _SetupMfaScreenState extends State<SetupMfaScreen> {
                     ],
                   );
                 } catch (e) {
+                  // If QR code fails to load, show an error message.
                   return const Text('Failed to load QR code');
                 }
               },
