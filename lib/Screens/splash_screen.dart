@@ -76,23 +76,22 @@ class _SplashScreenState extends State<SplashScreen> {
     );
 
     if (response.statusCode == 302) {
-      List<String> responseBody = response.body.split(" ");
-
-      String tokenId = responseBody[0];
-      String visible = responseBody[2];
+      Map<String, dynamic> responseBody = jsonDecode(response.body);
+      String tokenId = responseBody["Token"];
+      bool visible = responseBody["Visible"];
 
       if (tokenId != token) {
         await saveTokenId(tokenId);
       }
 
-      if (UserType.MessOwner.name == responseBody[1]) {
-        if (visible == "false") {
+      if (UserType.MessOwner.name == responseBody["UserRole"]) {
+        if (!visible) {
           return RegistrationSuccessfulScreen();
         }
         return MessDashboardScreen(token: tokenId);
-      } else if (UserType.Customer.name == responseBody[1]) {
+      } else if (UserType.Customer.name == responseBody["UserRole"]) {
         return CustomerDashboardScreen(token: tokenId);
-      } else if (UserType.Admmin.name == responseBody[1]) {
+      } else if (UserType.Admin.name == responseBody["UserRole"]) {
         return AdminDashboardScreen(token: tokenId);
       } else {
         SharedPreferences prefs =

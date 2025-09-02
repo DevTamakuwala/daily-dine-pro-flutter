@@ -2,5 +2,5 @@
 enum UserType {
   MessOwner,
   Customer,
-  Admmin
+  Admin
 }

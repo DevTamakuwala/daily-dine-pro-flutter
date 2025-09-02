@@ -199,7 +199,7 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
           ),
         );
       } else {
-        Navigator.of(context)..pop()..pop();
+        Navigator.pop(context);
         Navigator.push(
           context,
           MaterialPageRoute(
