@@ -46,6 +46,11 @@ class _SignupFormState extends State<SignupForm> {
   final _ownerPasswordController = TextEditingController();
   final _ownerConfirmPasswordController = TextEditingController();
 
+  bool _isOwnerPasswordObscured = true;
+  // bool _isOwnerConfirmPasswordObscured = true;
+  // bool _isCustomerPasswordObscured = true;
+  // bool _isCustomerConfirmPasswordObscured = true;
+
   // CHANGE: New controller for establishment date picker.
   final _establishmentDateController =
       TextEditingController(); // New controller for establishment date
@@ -260,13 +265,22 @@ class _SignupFormState extends State<SignupForm> {
                   : null),
           const SizedBox(height: 12),
           buildTextFormField(
-              controller: _ownerPasswordController,
-              label: "Password",
-              icon: Icons.lock_outline,
-              obscureText: true,
-              validator: (v) => v!.length < 6
-                  ? "Password must be at least 6 characters"
-                  : null),
+            controller: _ownerPasswordController,
+            label: "Password",
+            icon: Icons.lock_outline,
+            obscureText: _isOwnerPasswordObscured,
+            suffixIcon: _isOwnerPasswordObscured
+                ? Icons.visibility_off
+                : Icons.visibility,
+            onSuffixIconPressed: () {
+              setState(() {
+                _isOwnerPasswordObscured = !_isOwnerPasswordObscured;
+              });
+            },
+            validator: (v) => v!.length < 6
+                ? "Password must be at least 6 characters"
+                : null,
+          ),
           const SizedBox(height: 12),
           buildTextFormField(
               controller: _ownerConfirmPasswordController,
