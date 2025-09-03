@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'tabs/admin_home_screen.dart';
 import 'tabs/verify_mess_owner_screen.dart';
 import 'tabs/update_mess_data_screen.dart';
-import 'tabs/add_location_screen.dart';
+import '../mess_owner/tabs/menu_management_screen.dart';
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 
 
@@ -26,7 +26,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     AdminHomeScreen(),
     VerifyMessOwnerScreen(),
     UpdateMessDataScreen(),
-    AddLocationScreen(),
+    MenuManagementScreen(),
   ];
 
   void _onItemTapped(int index) {

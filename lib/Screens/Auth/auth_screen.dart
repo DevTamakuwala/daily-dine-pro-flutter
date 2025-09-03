@@ -61,7 +61,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 100, child: Image.asset('assets/DailyDinePro.png')),
+                      SizedBox(height: 200, child: Image.asset('assets/DailyDinePro-removebg-preview.png')),
                       const SizedBox(height: 20),
                       AnimatedBuilder(
                         animation: _cardFlipAnimation,

@@ -1,10 +1,15 @@
+// In file: lib/Screens/user/mess_owner/mess_dashboard_screen.dart
+
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dailydine/Screens/user/mess_owner/tabs/subscribers_page.dart';
 
-import '../../../animations/animated_background.dart';
+// Import the menu management screen we created
+import 'tabs/menu_management_screen.dart';
+import 'tabs/ProfilePage.dart';
 
-// The main dashboard screen widget, now a StatefulWidget
+// This is now the main widget that holds the BottomNavigationBar
 class MessDashboardScreen extends StatefulWidget {
   final String token;
 
@@ -15,153 +20,55 @@ class MessDashboardScreen extends StatefulWidget {
 }
 
 class _MessDashboardScreenState extends State<MessDashboardScreen> {
-  // In a StatefulWidget, you can hold state like the mess name
-  String messName = "Annapurna Mess";
+  int _selectedIndex = 0; // Tracks the currently selected tab
+
+  // List of the different pages for the mess owner
+  static const List<Widget> _pages = <Widget>[
+    MessOwnerHomePage(), // The new dashboard UI is now the first page
+    SubscribersPage(),   // Placeholder for Subscribers
+    MenuManagementScreen(), // The screen to add/update menus
+    ProfilePage(),       // Placeholder for Profile
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Consistent animated background
-          const AnimatedBackground(),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // --- Custom AppBar ---
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 25,
-                        backgroundImage: NetworkImage(
-                            'https://placehold.co/100x100/EFEFEF/333333?text=Logo'),
-                        backgroundColor: Colors.white,
-                      ),
-                      const SizedBox(width: 15),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Welcome Back!",
-                            style: TextStyle(
-                                color: Colors.grey.shade600, fontSize: 14),
-                          ),
-                          Text(
-                            messName, // Using the state variable
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon:
-                            const Icon(Icons.notifications_outlined, size: 28),
-                        onPressed: () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          prefs.clear();
-                          Navigator.pop(context);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (builder) => AuthScreen(
-                                  screenSize: MediaQuery.of(context).size),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                // --- Main Dashboard Content ---
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    children: [
-                      // --- Summary Cards ---
-                      const Row(
-                        children: [
-                          Expanded(
-                            child: _SummaryCard(
-                              title: "Subscribers",
-                              value: "124",
-                              icon: Icons.people_alt_outlined,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: _SummaryCard(
-                              title: "Today's Revenue",
-                              value: "₹4,520",
-                              icon: Icons.currency_rupee,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      const Row(
-                        children: [
-                          Expanded(
-                            child: _SummaryCard(
-                              title: "Daily Payments",
-                              value: "98",
-                              icon: Icons.receipt_long_outlined,
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // --- Today's Menu Section ---
-                      const _TodayMenuSection(),
-                      const SizedBox(height: 24),
-
-                      // --- Quick Actions Section ---
-                      Text(
-                        "Quick Actions",
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade800),
-                      ),
-                      const SizedBox(height: 16),
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _QuickActionButton(
-                            label: "Edit Menu",
-                            icon: Icons.restaurant_menu,
-                            color: Color(0xFF6A1B9A),
-                          ),
-                          _QuickActionButton(
-                            label: "Subscribers",
-                            icon: Icons.group,
-                            color: Color(0xFF00838F),
-                          ),
-                          _QuickActionButton(
-                            label: "Payments",
-                            icon: Icons.payment,
-                            color: Color(0xFF2E7D32),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+      body: IndexedStack( // Using IndexedStack to keep the state of each page alive
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed, // Ensures all labels are visible
+        selectedItemColor: Colors.orange.shade700,
+        unselectedItemColor: Colors.grey.shade600,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_alt_outlined),
+            activeIcon: Icon(Icons.people_alt),
+            label: 'Subscribers',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.restaurant_menu_outlined),
+            activeIcon: Icon(Icons.restaurant_menu),
+            label: 'Menu',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
@@ -169,16 +76,205 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
   }
 }
 
-// --- Reusable Internal Widgets ---
+//--- The New Dashboard UI is now its own widget ---
+class MessOwnerHomePage extends StatelessWidget {
+  const MessOwnerHomePage({super.key});
 
-// A card for displaying summary information (e.g., Subscribers)
-class _SummaryCard extends StatelessWidget {
+  // Logout Function (kept here for profile button access)
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    if (context.mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+            builder: (context) =>
+                AuthScreen(screenSize: MediaQuery.of(context).size)),
+            (Route<dynamic> route) => false,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F7FC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF4F7FC),
+        elevation: 0,
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Welcome Back,",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
+            ),
+            Text(
+              "Annapurna Mess",
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // TODO: Navigate to Notifications Screen
+            },
+            icon: const Icon(Icons.notifications_outlined, color: Colors.black54),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () => _logout(context),
+              child: const CircleAvatar(
+                backgroundColor: Colors.orange,
+                child: Text("A", style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        children: [
+          const SizedBox(height: 24),
+          _buildStatsGrid(),
+          const SizedBox(height: 24),
+          _buildRevenueChart(),
+          const SizedBox(height: 24),
+          _buildRecentActivity(),
+        ],
+      ),
+    );
+  }
+
+  // A Grid for displaying key statistics
+  Widget _buildStatsGrid() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "At a Glance",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.5,
+          children: const [
+            _StatCard(
+              title: "Subscribers",
+              value: "124",
+              icon: Icons.people_alt_outlined,
+              color: Colors.blue,
+            ),
+            _StatCard(
+              title: "Today's Revenue",
+              value: "₹4,520",
+              icon: Icons.currency_rupee,
+              color: Colors.green,
+            ),
+            _StatCard(
+              title: "Pending Payments",
+              value: "12",
+              icon: Icons.receipt_long_outlined,
+              color: Colors.orange,
+            ),
+            _StatCard(
+              title: "Meals Served Today",
+              value: "98",
+              icon: Icons.fastfood_outlined,
+              color: Colors.purple,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // A placeholder for a weekly revenue chart
+  Widget _buildRevenueChart() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Weekly Revenue",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          height: 180,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Center(
+            child: Text(
+              "Chart Placeholder",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // An actionable list of recent activities
+  Widget _buildRecentActivity() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Recent Activity",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        _ActivityTile(
+          icon: Icons.person_add_alt_1_outlined,
+          color: Colors.green,
+          title: "New Subscriber",
+          subtitle: "Rohan Sharma subscribed to Monthly Plan",
+          trailing: "Just now",
+        ),
+        _ActivityTile(
+          icon: Icons.payment_outlined,
+          color: Colors.blue,
+          title: "Payment Received",
+          subtitle: "Received ₹1200 from Anjali Mehta",
+          trailing: "5m ago",
+        ),
+        _ActivityTile(
+          icon: Icons.pause_circle_outline,
+          color: Colors.orange,
+          title: "Subscription Paused",
+          subtitle: "Vikram Singh paused for 3 days",
+          trailing: "1h ago",
+        ),
+      ],
+    );
+  }
+}
+
+// --- Reusable Internal Widgets for the Dashboard Page ---
+
+class _StatCard extends StatelessWidget {
   final String title;
   final String value;
   final IconData icon;
   final Color color;
 
-  const _SummaryCard({
+  const _StatCard({
     required this.title,
     required this.value,
     required this.icon,
@@ -191,37 +287,33 @@ class _SummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 10,
-          )
-        ],
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: color, size: 28),
+            child: Icon(icon, color: color),
           ),
-          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title,
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                value,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
-                value,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                title,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
               ),
             ],
           ),
@@ -231,126 +323,50 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-// A widget for the "Today's Menu" section with tabs
-class _TodayMenuSection extends StatelessWidget {
-  const _TodayMenuSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Today's Menu",
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const TabBar(
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              labelColor: Colors.black87,
-              unselectedLabelColor: Colors.grey,
-              tabs: [
-                Tab(text: "Breakfast"),
-                Tab(text: "Lunch"),
-                Tab(text: "Dinner"),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 150, // Fixed height for the TabBarView
-            child: TabBarView(
-              children: [
-                _MenuList(items: ["Poha", "Upma", "Tea/Coffee"]),
-                _MenuList(items: ["Roti", "Dal Fry", "Rice", "Aloo Gobi"]),
-                _MenuList(items: ["Roti", "Paneer Masala", "Jeera Rice"]),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Displays a list of menu items for a specific meal
-class _MenuList extends StatelessWidget {
-  final List<String> items;
-
-  const _MenuList({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6.0),
-            child: Text(
-              "• ${items[index]}",
-              style: const TextStyle(fontSize: 16),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// A large, tappable button for quick actions
-class _QuickActionButton extends StatelessWidget {
-  final String label;
+class _ActivityTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String trailing;
   final IconData icon;
   final Color color;
 
-  const _QuickActionButton({
-    required this.label,
+  const _ActivityTile({
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
     required this.icon,
     required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w600, color: color),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: color.withOpacity(0.15),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(subtitle,
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+              ],
             ),
-          ],
-        ),
+          ),
+          Text(trailing,
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+        ],
       ),
     );
   }
