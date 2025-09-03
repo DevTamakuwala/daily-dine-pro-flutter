@@ -4,7 +4,7 @@ import 'package:dailydine/Screens/Auth/two_factor/enable_two_factor.dart';
 import 'package:dailydine/Screens/user/mess_owner/mess_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart'; // CHANGE: Import for date formatting
+import 'package:intl/intl.dart'; // CHANGE: Import for date formatting (added by user)
 
 import '../../credentials/api_url.dart';
 import '../../encryption/encrypt_text.dart';
@@ -568,6 +568,8 @@ class _SignupFormState extends State<SignupForm> {
           "zipCode": zipcode,
           "messPhoneNo": phone,
           "establisheDate": establishmentDate, // Use the new establishmentDate
+          "latitude": null,
+          "longitude": null,
         },
         "customer": null
       }),
