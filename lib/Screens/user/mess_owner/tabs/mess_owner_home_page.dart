@@ -214,13 +214,13 @@ class _MessOwnerHomePageState extends State<MessOwnerHomePage> {
   Future<void> getMessOwnerData() async {
     int? userId = await getUserId();
     String? token = await getTokenId();
-    while (userId != null && token != null) {
+    while (userId == null && token == null) {
       userId = await getUserId();
       token = await getTokenId();
     }
     String apiUrl = '${url}mess/$userId';
     print(apiUrl);
-    final response = await http.post(
+    final response = await http.get(
       Uri.parse(apiUrl),
       headers: {
         "Content-Type": "application/json",
