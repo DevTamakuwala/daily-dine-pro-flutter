@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
@@ -15,9 +14,6 @@ import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
 import '../user/admin/admin_dashboard_screen.dart';
-import '../user/mess_owner/tabs/menu_management_screen.dart';
-import '../user/admin/verify_mess_details_screen.dart';
-import '../user/mess_owner/mess_dashboard_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -60,19 +56,21 @@ class _LoginformState extends State<LoginForm> {
             icon: Icons.lock_outline,
             obscureText: true),
         const SizedBox(height: 24),
-        buildSubmitButton(
-            label: "VerifyMessDetailsScreen",
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  //builder: (context) => CustomerDashboardScreen()));
-                  //builder: (context) => VerifyMessDetailsScreen(),
-                  builder: (context) => MessDashboardScreen(token: '',),
-                ),
-              );
-            }),
-        const SizedBox(height: 15),
+        // buildSubmitButton(
+        //     label: "VerifyMessDetailsScreen",
+        //     onPressed: () async {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           //builder: (context) => CustomerDashboardScreen()));
+        //           //builder: (context) => VerifyMessDetailsScreen(),
+        //           builder: (context) => MessDashboardScreen(
+        //             token: '',
+        //           ),
+        //         ),
+        //       );
+        //     }),
+        // const SizedBox(height: 15),
         buildSubmitButton(
             label: "Login",
             onPressed: () async {
@@ -121,18 +119,34 @@ class _LoginformState extends State<LoginForm> {
       }),
     );
 
+    print(response.body);
+
     if (response.statusCode == 302) {
+      print("Status Code 302");
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       String tokenId = responseBody["Token"];
       bool visible = responseBody["Visible"];
+      int userId = responseBody["UserId"];
       await saveTokenId(tokenId);
       await saveEmail(email);
+      await saveUserId(userId);
       await savePassword(password);
       await saveUserRole(responseBody["UserRole"]);
-      Navigator.pop(context);
+      // CHANGE (from git): Previously this code popped the current route here.
+      // The pop was commented out to avoid removing the login screen before
+      // navigation to role-specific dashboards. Keep this behavior in mind
+      // if navigation flow seems off.
+      // Navigator.pop(context);
       switch (responseBody["UserRole"]) {
         case "MessOwner":
-          if (visible) {
+          print("MessOwner");
+          // CHANGE (from git): Added a debug print to log the "Visible" flag
+          // received from the backend. Useful for debugging visibility flow.
+          // CHANGE: Added explicit handling for when a MessOwner is not visible
+          // (e.g., registration incomplete). This branch navigates to
+          // RegistrationSuccessfulScreen.
+          if (!visible) {
+            print("Not Visible");
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -141,7 +155,9 @@ class _LoginformState extends State<LoginForm> {
               ),
             );
           } else if (visible) {
+            print("Visible");
             if (!responseBody["MfaEnable"]) {
+              print("MFA Not enabled");
               Navigator.pop(context);
               Navigator.push(
                 context,

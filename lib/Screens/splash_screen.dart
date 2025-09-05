@@ -4,7 +4,9 @@ import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/user/admin/admin_dashboard_screen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,8 +34,12 @@ class _SplashScreenState extends State<SplashScreen> {
     // Wait for the splash screen duration
     await Future.delayed(const Duration(seconds: 3));
 
+    if (!mounted) return;
+
     // Get the screen size reliably here
     final Size screenSize = MediaQuery.of(context).size;
+    final String publicKey =
+        await rootBundle.loadString('assets/key/public.pem');
 
     // Determine the next page
     // SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -47,22 +53,30 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       String email = await getEmail() ?? '';
       String password = await getPassword() ?? '';
-      nextPage = await checkLoginStatus(email, password, token);
+      nextPage =
+          await checkLoginStatus(email, password, token, screenSize, publicKey);
       // Hello(token: token)
     }
 
     // Use the mounted check for safety before navigating
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => nextPage),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (builder) => nextPage,
+      ),
+    );
+    // if (mounted) {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => nextPage),
+    //   );
+    // }
   }
 
-  Future<Widget> checkLoginStatus(
-      String email, String password, String token) async {
-    String encryptedPassword = await encrypt(password);
+  Future<Widget> checkLoginStatus(String email, String password, String token,
+      Size screenSize, String publicKey) async {
+    String encryptedPassword = await compute(
+        encryptPassword, {'password': password, 'publicKey': publicKey});
     String apiUrl = '${url}auth/login';
     final response = await http.post(
       Uri.parse(apiUrl),
@@ -75,39 +89,41 @@ class _SplashScreenState extends State<SplashScreen> {
       }),
     );
 
+    // print(response.body);
+    print(response.statusCode);
+
     if (response.statusCode == 302) {
+      print("Status code 302");
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       String tokenId = responseBody["Token"];
       bool visible = responseBody["Visible"];
 
       if (tokenId != token) {
+        print("Different token");
         await saveTokenId(tokenId);
       }
 
       if (UserType.MessOwner.name == responseBody["UserRole"]) {
+        print("Mess Owner Role");
         if (!visible) {
+          print("Not Visible");
           return RegistrationSuccessfulScreen();
         }
+        print("Visible");
         return MessDashboardScreen(token: tokenId);
       } else if (UserType.Customer.name == responseBody["UserRole"]) {
         return CustomerDashboardScreen(token: tokenId);
       } else if (UserType.Admin.name == responseBody["UserRole"]) {
         return AdminDashboardScreen(token: tokenId);
       } else {
-        SharedPreferences prefs =
-        await SharedPreferences.getInstance();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.clear();
-        return AuthScreen(screenSize: MediaQuery
-            .of(context)
-            .size);
+        return AuthScreen(screenSize: screenSize);
       }
     } else {
-      SharedPreferences prefs =
-      await SharedPreferences.getInstance();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.clear();
-      return AuthScreen(screenSize: MediaQuery
-          .of(context)
-          .size);
+      return AuthScreen(screenSize: screenSize);
     }
   }
 

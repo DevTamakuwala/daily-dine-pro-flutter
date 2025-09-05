@@ -12,3 +12,16 @@ Future<String> encrypt(String password) async {
 
   return encrypted.base64;
 }
+
+String encryptPassword(Map<String, String> params) {
+  final password = params['password']!;
+  final publicKeyString = params['publicKey']!;
+
+  final parser = RSAKeyParser();
+  final RSAPublicKey publicKey = parser.parse(publicKeyString) as RSAPublicKey;
+
+  final encrypter = Encrypter(RSA(publicKey: publicKey));
+  final encrypted = encrypter.encrypt(password);
+
+  return encrypted.base64;
+}
