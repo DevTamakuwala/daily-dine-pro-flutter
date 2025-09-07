@@ -1,18 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../service/save_shared_preference.dart';
 import '../../../Auth/auth_screen.dart';
 
 class MessOwnerHomePage extends StatefulWidget {
-  final Map<dynamic, dynamic> messOwnerData;
-
-  const MessOwnerHomePage({super.key, required this.messOwnerData});
+  const MessOwnerHomePage({super.key});
 
   @override
-  State<MessOwnerHomePage> createState() => _MessOwnerHomePageState();
+  State<MessOwnerHomePage> createState() => MessOwnerHomePageState();
 }
 
-class _MessOwnerHomePageState extends State<MessOwnerHomePage> {
+class MessOwnerHomePageState extends State<MessOwnerHomePage> {
+  // New state variable to hold the data
+  late Map<dynamic, dynamic> messOwnerData;
+
   // Logout Function (kept here for profile button access)
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -27,64 +31,83 @@ class _MessOwnerHomePageState extends State<MessOwnerHomePage> {
     }
   }
 
+  Future<void> messData() async {
+    String? messData = await getMessData();
+    while (messData == null) {
+      messData = await getMessData();
+    }
+    messOwnerData = jsonDecode(messData);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FC),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF4F7FC),
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Welcome Back,",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
+    return FutureBuilder(
+      future: messData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF4F7FC),
+            appBar: AppBar(
+              backgroundColor: const Color(0xFFF4F7FC),
+              elevation: 0,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Welcome Back,",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    messOwnerData['mess']['messName'],
+                    style: TextStyle(
+                      color: Colors.black87,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ],
               ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    // TODO: Navigate to Notifications Screen
+                  },
+                  icon: const Icon(Icons.notifications_outlined,
+                      color: Colors.black54),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: GestureDetector(
+                    onTap: () => _logout(context),
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.orange,
+                      child: Text("A", style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Text(
-              widget.messOwnerData['mess']['messName'],
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+            body: ListView(
+              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+              children: [
+                const SizedBox(height: 24),
+                _buildStatsGrid(),
+                const SizedBox(height: 24),
+                _buildRevenueChart(),
+                const SizedBox(height: 24),
+                _buildRecentActivity(),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // TODO: Navigate to Notifications Screen
-            },
-            icon:
-                const Icon(Icons.notifications_outlined, color: Colors.black54),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: () => _logout(context),
-              child: const CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: Text("A", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-        children: [
-          const SizedBox(height: 24),
-          _buildStatsGrid(),
-          const SizedBox(height: 24),
-          _buildRevenueChart(),
-          const SizedBox(height: 24),
-          _buildRecentActivity(),
-        ],
-      ),
+          );
+        }
+      },
     );
   }
 

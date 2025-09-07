@@ -182,6 +182,7 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
   // Verifies the provided OTP with the server.
   // Handles both enabling and disabling MFA based on the 'from' parameter.
   Future<void> verifyOtp(String otp) async {
+    print("Enabling MFA");
     // If the screen was opened to disable MFA, call the disableMFA method.
     if (widget.from == "Disable") {
       await disableMFA(widget.email, otp);
@@ -203,6 +204,19 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
     );
 
     if (response.statusCode == 200) {
+      String? messData = await getMessData();
+      while(messData == null){
+        messData = await getMessData();
+      }
+      Map<String, dynamic> messDataJson = jsonDecode(messData!);
+
+      messDataJson["mfaEnabled"] = true;
+      messDataJson["mfaSecret"] = null;
+      messDataJson["backupCodes"] = [];
+
+      print(messDataJson);
+
+      await saveMessData(jsonEncode(messData));
       // If this is the initial setup, navigate to the backup codes screen.
       if (widget.isInitialSetup) {
         Navigator.of(context)..pop()..pop();
@@ -218,12 +232,23 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
       } else {
         // If it's a regular login, determine the user role and navigate to the appropriate dashboard.
         String? userRole = await getUserRole();
-        while(userRole == null){
+        String? messData = await getMessData();
+        while(userRole == null && messData == null){
           userRole = await getUserRole();
+          messData = await getMessData();
         }
+        Map<String, dynamic> messDataJson = jsonDecode(messData!);
+
+        messDataJson["mfaEnabled"] = true;
+        messDataJson["mfaSecret"] = null;
+        messDataJson["backupCodes"] = [];
+
+        print(messDataJson);
+
+        await saveMessData(jsonEncode(messData));
         Navigator.pop(context);
         if(userRole == UserType.MessOwner.name) {
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (builder) =>
@@ -262,6 +287,7 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
 
   // Disables Multi-Factor Authentication for the user.
   Future<void> disableMFA(String email, String otp) async {
+    print("Disabling MFA");
     // API endpoint for disabling MFA.
     String apiUrl = '${url}mfa/delete';
     final response = await http.delete(
@@ -277,6 +303,20 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
     );
 
     if (response.statusCode == 200) {
+      String? messData = await getMessData();
+      while(messData == null){
+        messData = await getMessData();
+      }
+      Map<String, dynamic> messDataJson = jsonDecode(messData);
+
+      messDataJson["mfaEnabled"] = false;
+      messDataJson["mfaSecret"] = null;
+      messDataJson["backupCodes"] = [];
+
+      print(messDataJson);
+
+      await saveMessData(jsonEncode(messData));
+
       // If successful, go back to the previous screen.
       Navigator.pop(context);
     } else {

@@ -1,7 +1,5 @@
 // In file: lib/Screens/user/mess_owner/mess_dashboard_screen.dart
 
-import 'dart:convert';
-
 import 'package:dailydine/Screens/user/mess_owner/tabs/mess_owner_home_page.dart';
 import 'package:dailydine/Screens/user/mess_owner/tabs/subscribers_page.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +31,10 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
   // Future to hold the result of loadUser, preventing re-fetching on rebuild
   Future<void>? _loadUserFuture;
 
+  // Key to force rebuild the main dashboard page
+  final GlobalKey<MessOwnerHomePageState> _dashboardKey =
+      GlobalKey<MessOwnerHomePageState>();
+
   @override
   void initState() {
     super.initState();
@@ -62,25 +64,19 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
       },
     );
 
+    await saveMessData(response.body);
+
     if (response.statusCode == 200) {
-      messOwnerData = jsonDecode(response.body);
       // Initialize the pages list after data is successfully fetched
       pages = <Widget>[
-        MessOwnerHomePage(
-          messOwnerData: messOwnerData,
-        ),
+        MessOwnerHomePage(),
         // The new dashboard UI is now the first page
-        SubscribersPage(
-          messOwnerData: messOwnerData,
-        ),
+        SubscribersPage(),
         // Placeholder for Subscribers
-        MenuManagementScreen(
-          messOwnerData: messOwnerData,
-        ),
+        MenuManagementScreen(),
         // The screen to add/update menus
         ProfilePage(
-          messOwnerData: messOwnerData,
-          idToken: token!,
+          idToken: token!, // Pass the callback here
         ),
         // Placeholder for Profile
       ];

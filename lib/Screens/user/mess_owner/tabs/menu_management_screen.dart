@@ -7,9 +7,8 @@ import 'package:intl/intl.dart';
 class MenuManagementScreen extends StatefulWidget {
   // Optional date to pre-select when opening the screen.
   final DateTime? menuDate;
-  final Map<dynamic, dynamic> messOwnerData;
 
-  const MenuManagementScreen({super.key, this.menuDate, required this.messOwnerData});
+  const MenuManagementScreen({super.key, this.menuDate});
 
   @override
   State<MenuManagementScreen> createState() => _MenuManagementScreenState();

@@ -31,123 +31,133 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
   bool isAvailable = true;
   bool isLoading = false;
 
-  void init() {
-    isAvailable = widget.mfaEnabled;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    init();
+  Future<void> init() async {
+    String? messData = await getMessData();
+    while (messData == null) {
+      messData = await getMessData();
+    }
+    print(messData);
+    isAvailable = jsonDecode(messData)['mfaEnabled'];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Setting the background color of the page to white.
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text("Settings"),
-        backgroundColor: Colors.white,
-        elevation: 1,
-      ),
-      body: Stack(
-        children: [
-          if (isLoading)
-            Container(
-              decoration: BoxDecoration(color: Colors.grey),
-              child: Center(
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.grey,
-                ),
-              ),
+    return FutureBuilder(
+      future: init(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
-          ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            children: [
-              // A section header for the 2FA settings.
-              buildSectionHeader("2FA"),
-              Column(
-                children: [
-                  // A ListTile with a switch to toggle 2FA.
-                  ListTile(
-                    leading: const Icon(Icons.security),
-                    title: const Text("Enable 2FA"),
-                    trailing: Switch(
-                      value: isAvailable,
-                      onChanged: (value) async {
-                        // Update the state when the switch is toggled.
-                        if (!widget.mfaEnabled) {
-                          setState(() {
-                            isLoading = true;
-                            isAvailable = true;
-                          });
-                          await setUpMFA(widget.email);
-                        } else {
-                          // await disableMFA(widget.email);
-                          setState(() {
-                            isLoading = false;
-                            isAvailable = false;
-                          });
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text("Warning"),
-                                content: Text(
-                                    "Are you sure you want to disable 2 Factor-Authentication ?"),
-                                actions: <Widget>[
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (builder) => VerifyTwoFactorScreen(
-                                              isInitialSetup: false,
-                                              idToken: widget.idToken,
-                                              email: widget.email,
-                                              responseBody: widget.responseBody,
-                                              from: "Disable"),
-                                        ),
-                                      );
-                                      setState(() {
-                                        isAvailable = false;
-                                        isLoading = false;
-                                      });
-                                    },
-                                    child: Text("Yes"),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isAvailable = true;
-                                        isLoading = false;
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text("No"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                          setState(() {
-                            isLoading = false;
-                          });
-                        }
-                      },
-                      activeColor: Colors
-                          .green, // Green color when the switch is active.
+          );
+        } else {
+          return Scaffold(
+            // Setting the background color of the page to white.
+            backgroundColor: Colors.grey[100],
+            appBar: AppBar(
+              title: const Text("Settings"),
+              backgroundColor: Colors.white,
+              elevation: 1,
+            ),
+            body: Stack(
+              children: [
+                if (isLoading)
+                  Container(
+                    decoration: BoxDecoration(color: Colors.grey),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.grey,
+                      ),
                     ),
                   ),
-                ],
-              )
-            ],
-          )
-        ],
-      ),
+                ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    // A section header for the 2FA settings.
+                    buildSectionHeader("2FA"),
+                    Column(
+                      children: [
+                        // A ListTile with a switch to toggle 2FA.
+                        ListTile(
+                          leading: const Icon(Icons.security),
+                          title: const Text("Enable 2FA"),
+                          trailing: Switch(
+                            value: isAvailable,
+                            onChanged: (value) async {
+                              // Update the state when the switch is toggled.
+                              if (!widget.mfaEnabled) {
+                                setState(() {
+                                  isLoading = true;
+                                  isAvailable = true;
+                                });
+                                await setUpMFA(widget.email);
+                              } else {
+                                // await disableMFA(widget.email);
+                                setState(() {
+                                  isLoading = false;
+                                  isAvailable = false;
+                                });
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text("Warning"),
+                                      content: Text(
+                                          "Are you sure you want to disable 2 Factor-Authentication ?"),
+                                      actions: <Widget>[
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (builder) =>
+                                                    VerifyTwoFactorScreen(
+                                                        isInitialSetup: false,
+                                                        idToken: widget.idToken,
+                                                        email: widget.email,
+                                                        responseBody:
+                                                            widget.responseBody,
+                                                        from: "Disable"),
+                                              ),
+                                            );
+                                            isAvailable = false;
+                                            isLoading = false;
+                                          },
+                                          child: Text("Yes"),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            isAvailable = true;
+                                            isLoading = false;
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("No"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            },
+                            activeColor: Colors
+                                .green, // Green color when the switch is active.
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                )
+              ],
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -186,6 +196,7 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
           ),
         ),
       );
+      setState(() {});
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
