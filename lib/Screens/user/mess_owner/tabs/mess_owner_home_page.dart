@@ -1,13 +1,12 @@
-import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../credentials/api_url.dart';
 import '../../../Auth/auth_screen.dart';
 
 class MessOwnerHomePage extends StatefulWidget {
-  const MessOwnerHomePage({super.key});
+  final Map<dynamic, dynamic> messOwnerData;
+
+  const MessOwnerHomePage({super.key, required this.messOwnerData});
 
   @override
   State<MessOwnerHomePage> createState() => _MessOwnerHomePageState();
@@ -30,73 +29,62 @@ class _MessOwnerHomePageState extends State<MessOwnerHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getMessOwnerData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        } else {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF4F7FC),
-            appBar: AppBar(
-              backgroundColor: const Color(0xFFF4F7FC),
-              elevation: 0,
-              title: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Welcome Back,",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    "Annapurna Mess",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F7FC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF4F7FC),
+        elevation: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Welcome Back,",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
               ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    // TODO: Navigate to Notifications Screen
-                  },
-                  icon: const Icon(Icons.notifications_outlined,
-                      color: Colors.black54),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: GestureDetector(
-                    onTap: () => _logout(context),
-                    child: const CircleAvatar(
-                      backgroundColor: Colors.orange,
-                      child: Text("A", style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                ),
-              ],
             ),
-            body: ListView(
-              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-              children: [
-                const SizedBox(height: 24),
-                _buildStatsGrid(),
-                const SizedBox(height: 24),
-                _buildRevenueChart(),
-                const SizedBox(height: 24),
-                _buildRecentActivity(),
-              ],
+            Text(
+              widget.messOwnerData['mess']['messName'],
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
-          );
-        }
-      },
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // TODO: Navigate to Notifications Screen
+            },
+            icon:
+                const Icon(Icons.notifications_outlined, color: Colors.black54),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () => _logout(context),
+              child: const CircleAvatar(
+                backgroundColor: Colors.orange,
+                child: Text("A", style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        children: [
+          const SizedBox(height: 24),
+          _buildStatsGrid(),
+          const SizedBox(height: 24),
+          _buildRevenueChart(),
+          const SizedBox(height: 24),
+          _buildRecentActivity(),
+        ],
+      ),
     );
   }
 
@@ -209,25 +197,6 @@ class _MessOwnerHomePageState extends State<MessOwnerHomePage> {
         ),
       ],
     );
-  }
-
-  Future<void> getMessOwnerData() async {
-    int? userId = await getUserId();
-    String? token = await getTokenId();
-    while (userId == null && token == null) {
-      userId = await getUserId();
-      token = await getTokenId();
-    }
-    String apiUrl = '${url}mess/$userId';
-    print(apiUrl);
-    final response = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token"
-      },
-    );
-    print(response.body);
   }
 }
 

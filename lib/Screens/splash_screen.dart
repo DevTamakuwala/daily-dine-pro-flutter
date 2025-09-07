@@ -59,6 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     // Use the mounted check for safety before navigating
+    Navigator.pop(context);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -89,27 +90,20 @@ class _SplashScreenState extends State<SplashScreen> {
       }),
     );
 
-    // print(response.body);
-    print(response.statusCode);
 
     if (response.statusCode == 302) {
-      print("Status code 302");
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       String tokenId = responseBody["Token"];
       bool visible = responseBody["Visible"];
 
       if (tokenId != token) {
-        print("Different token");
         await saveTokenId(tokenId);
       }
 
       if (UserType.MessOwner.name == responseBody["UserRole"]) {
-        print("Mess Owner Role");
         if (!visible) {
-          print("Not Visible");
           return RegistrationSuccessfulScreen();
         }
-        print("Visible");
         return MessDashboardScreen(token: tokenId);
       } else if (UserType.Customer.name == responseBody["UserRole"]) {
         return CustomerDashboardScreen(token: tokenId);
@@ -130,11 +124,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xffefeade),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/DailyDinePro.png", width: 200, height: 200),
+            Image.asset("assets/Animation/DailyDinePro.gif", width: 300, height: 300),
           ],
         ),
       ),

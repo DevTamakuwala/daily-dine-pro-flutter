@@ -1,3 +1,6 @@
+import 'package:dailydine/Screens/user/admin/admin_dashboard_screen.dart';
+import 'package:dailydine/Screens/user/mess_owner/mess_dashboard_screen.dart';
+import 'package:dailydine/enums/user_types.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,13 +8,20 @@ import 'package:flutter/services.dart';
 import '../../user/customer/customer_dashboard_screen.dart';
 
 // A screen to display the user's generated backup codes after setting up 2FA.
-class BackupCodesScreen extends StatelessWidget {
+class BackupCodesScreen extends StatefulWidget {
   final List<dynamic> backupCodes;
+  final String from;
 
-  const BackupCodesScreen({super.key, required this.backupCodes});
+  const BackupCodesScreen(
+      {super.key, required this.backupCodes, required this.from});
 
+  @override
+  State<BackupCodesScreen> createState() => _BackupCodesScreenState();
+}
+
+class _BackupCodesScreenState extends State<BackupCodesScreen> {
   void _copyCodesToClipboard(BuildContext context) {
-    final allCodes = backupCodes.join('\n');
+    final allCodes = widget.backupCodes.join('\n');
     Clipboard.setData(ClipboardData(text: allCodes));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("All backup codes copied to clipboard!")),
@@ -23,12 +33,44 @@ class BackupCodesScreen extends StatelessWidget {
     // For now, we'll just pop back twice to exit the 2FA setup flow.
     String? idToken = await getTokenId();
     Navigator.of(context)
-      ..pop()
-      ..pop();
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (builder) => CustomerDashboardScreen(
-              token: idToken ?? "",
-            )));
+      ..pop()..pop();
+    if (widget.from == "Settings"){
+    } else {
+      String? role = await getUserRole();
+      while(role == null){
+        role = await getUserRole();
+      }
+      if(role == UserType.Customer.name) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (builder) =>
+                CustomerDashboardScreen(
+                  token: idToken ?? "",
+                ),
+          ),
+        );
+      }
+      if(role == UserType.MessOwner.name) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (builder) =>
+                MessDashboardScreen(
+                  token: idToken ?? "",
+                ),
+          ),
+        );
+      }
+      if(role == UserType.MessOwner.name) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (builder) =>
+                AdminDashboardScreen(
+                  token: idToken ?? "",
+                ),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -68,7 +110,7 @@ class BackupCodesScreen extends StatelessWidget {
               ),
               child: GridView.builder(
                 shrinkWrap: true,
-                itemCount: backupCodes.length,
+                itemCount: widget.backupCodes.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 3.5,
@@ -78,7 +120,7 @@ class BackupCodesScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return Center(
                     child: Text(
-                      backupCodes[index],
+                      widget.backupCodes[index],
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

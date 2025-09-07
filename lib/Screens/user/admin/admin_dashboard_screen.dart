@@ -1,17 +1,16 @@
+import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import the new, separate screen files for each tab
 import 'tabs/admin_home_screen.dart';
-import 'tabs/verify_mess_owner_screen.dart';
 import 'tabs/update_mess_data_screen.dart';
-import '../mess_owner/tabs/menu_management_screen.dart';
-import 'package:dailydine/Screens/Auth/auth_screen.dart';
-
+import 'tabs/verify_mess_owner_screen.dart';
 
 // This is the main screen that holds the BottomNavigationBar for the Admin.
 class AdminDashboardScreen extends StatefulWidget {
   final String token;
+
   const AdminDashboardScreen({super.key, required this.token});
 
   @override
@@ -26,7 +25,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     AdminHomeScreen(),
     VerifyMessOwnerScreen(),
     UpdateMessDataScreen(),
-    MenuManagementScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -40,11 +38,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     await prefs.clear();
     // Navigate back to the login screen and remove all previous routes
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => AuthScreen(screenSize: MediaQuery.of(context).size)),
-          (Route<dynamic> route) => false,
+      MaterialPageRoute(
+          builder: (context) =>
+              AuthScreen(screenSize: MediaQuery.of(context).size)),
+      (Route<dynamic> route) => false,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

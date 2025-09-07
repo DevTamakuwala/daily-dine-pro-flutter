@@ -11,16 +11,20 @@ import 'verify_two_factor_screen.dart';
 class SetupMfaScreen extends StatefulWidget {
   // Authentication token for secure API calls
   final String idToken;
+
   // User's email for MFA association
   final String email;
+
   // Response from the MFA setup API containing QR code and setup key
   final Map<String, dynamic> response;
+  final String from;
 
   const SetupMfaScreen(
       {super.key,
       required this.idToken,
       required this.response,
-      required this.email});
+      required this.email,
+      required this.from});
 
   @override
   State<SetupMfaScreen> createState() => _SetupMfaScreenState();
@@ -146,6 +150,7 @@ class _SetupMfaScreenState extends State<SetupMfaScreen> {
                         idToken: widget.idToken,
                         email: widget.email,
                         responseBody: widget.response,
+                        from: widget.from,
                       ),
                     ),
                   );

@@ -5,9 +5,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../widgets/build_section_header.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  final Map<String, dynamic> messOwnerData;
+  final String idToken;
 
+  const ProfilePage({super.key, required this.messOwnerData, required this.idToken});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   // Logout function to clear session and navigate to AuthScreen
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -24,6 +32,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String avatar =
+        "${widget.messOwnerData['firstName'][0]}${widget.messOwnerData['lastName'][0]}";
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -44,26 +54,29 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.orange,
-                    child: Text("A",
+                    child: Text(avatar,
                         style: TextStyle(color: Colors.white, fontSize: 40)),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Annapurna Mess", // Mock Data
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  SizedBox(height: 16),
+                  Text(
+                    widget.messOwnerData['mess']['messName'],
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
-                    "Owner: Priya Sharma", // Mock Data
+                    "${widget.messOwnerData['firstName']} ${widget.messOwnerData['lastName']}",
                     style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           buildSectionHeader("Mess Details"),
           Card(
@@ -74,17 +87,20 @@ class ProfilePage extends StatelessWidget {
             child: Column(
               children: [
                 _buildInfoTile(
-                    icon: Icons.location_on_outlined,
-                    title: "Address",
-                    subtitle: "123 Sunshine Apts, Kothrud, Pune"),
+                  icon: Icons.location_on_outlined,
+                  title: "Address",
+                  subtitle: widget.messOwnerData['mess']['address'],
+                ),
                 _buildInfoTile(
-                    icon: Icons.phone_outlined,
-                    title: "Contact",
-                    subtitle: "+91 98765 43210"),
+                  icon: Icons.phone_outlined,
+                  title: "Contact",
+                  subtitle:
+                      "+91 ${widget.messOwnerData['mess']['messPhoneNo']}",
+                ),
                 _buildInfoTile(
                     icon: Icons.email_outlined,
                     title: "Email",
-                    subtitle: "annapurna.mess@example.com"),
+                    subtitle: widget.messOwnerData['email']),
               ],
             ),
           ),
@@ -115,7 +131,12 @@ class ProfilePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (builder) => MessOwnerSettingsPage(),
+                        builder: (builder) => MessOwnerSettingsPage(
+                          mfaEnabled: widget.messOwnerData['mfaEnabled'],
+                          email: widget.messOwnerData['email'],
+                          idToken: widget.idToken,
+                          responseBody: widget.messOwnerData,
+                        ),
                       ),
                     );
                   },

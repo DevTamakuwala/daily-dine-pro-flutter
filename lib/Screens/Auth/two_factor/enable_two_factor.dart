@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:dailydine/Screens/Auth/two_factor/setup_mfa_screen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
-import 'package:flutter/material.dart';
+import 'package.flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../credentials/api_url.dart';
@@ -34,6 +34,7 @@ class _EnableTwoFactorState extends State<EnableTwoFactor> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // --- UI Elements for User Prompt ---
             const Text(
               "For your account safety we request you to enable two-factor authentication.",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -50,6 +51,7 @@ class _EnableTwoFactorState extends State<EnableTwoFactor> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  // Retrieve user email for MFA setup
                   String? email = await getEmail();
                   // Navigate to the verification page in 'setup' mode.
                   await setUpMFA(email ?? "");
@@ -68,7 +70,7 @@ class _EnableTwoFactorState extends State<EnableTwoFactor> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to the verification page in 'setup' mode.
+                  // If user skips, navigate to the customer dashboard
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -108,17 +110,20 @@ class _EnableTwoFactorState extends State<EnableTwoFactor> {
     Map<String, dynamic> responseBody = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
+      // On successful API call, navigate to the MFA setup screen
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SetupMfaScreen(
             idToken: widget.idToken,
             response: responseBody,
+            from: "Login",
             email: email
           ),
         ),
       );
     } else {
+      // Show a generic error message if the setup fails
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Secret key copied to clipboard!")),
       );
