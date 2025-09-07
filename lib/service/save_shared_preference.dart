@@ -10,6 +10,10 @@ Future<void> saveUserId(value) async {
   await prefs.setInt("UserId", value);
 }
 
+Future<void> saveMessData(value) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("MessData", value);
+}
 
 Future<void> saveEmail(value) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,5 +57,11 @@ Future<String?> getUserRole() async {
 Future<int?> getUserId() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   int? value = prefs.getInt("UserId");
+  return value;
+}
+
+Future<String?> getMessData() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? value = prefs.getString("MessData");
   return value;
 }

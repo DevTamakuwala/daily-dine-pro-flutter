@@ -12,8 +12,7 @@ class _Subscriber {
 }
 
 class SubscribersPage extends StatefulWidget {
-  final Map<dynamic, dynamic> messOwnerData;
-  const SubscribersPage({super.key, required this.messOwnerData});
+  const SubscribersPage({super.key});
 
   @override
   State<SubscribersPage> createState() => _SubscribersPageState();

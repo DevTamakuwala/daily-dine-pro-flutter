@@ -1,15 +1,17 @@
+import 'dart:convert';
+
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/user/mess_owner/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../service/save_shared_preference.dart';
 import '../../../../widgets/build_section_header.dart';
 
 class ProfilePage extends StatefulWidget {
-  final Map<String, dynamic> messOwnerData;
   final String idToken;
 
-  const ProfilePage({super.key, required this.messOwnerData, required this.idToken});
+  const ProfilePage({super.key, required this.idToken});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -30,131 +32,153 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Map<String, dynamic> messOwnerData = {};
+
   @override
   Widget build(BuildContext context) {
-    String avatar =
-        "${widget.messOwnerData['firstName'][0]}${widget.messOwnerData['lastName'][0]}";
-    return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text("My Profile"),
-        backgroundColor: Colors.white,
-        elevation: 1,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Profile Header Card
-          Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 4,
-            shadowColor: Colors.black.withOpacity(0.1),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.orange,
-                    child: Text(avatar,
-                        style: TextStyle(color: Colors.white, fontSize: 40)),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    widget.messOwnerData['mess']['messName'],
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+    return FutureBuilder(
+      future: messData(),
+      builder: (context, snapshot) {
+        String avatar =
+            "${messOwnerData['firstName'][0]}${messOwnerData['lastName'][0]}";
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          return Scaffold(
+            backgroundColor: Colors.grey[100],
+            appBar: AppBar(
+              title: const Text("My Profile"),
+              backgroundColor: Colors.white,
+              elevation: 1,
+            ),
+            body: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // Profile Header Card
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  elevation: 4,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.orange,
+                          child: Text(avatar,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 40)),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          messOwnerData['mess']['messName'],
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "${messOwnerData['firstName']} ${messOwnerData['lastName']}",
+                          style: TextStyle(
+                              fontSize: 16, color: Colors.grey.shade600),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    "${widget.messOwnerData['firstName']} ${widget.messOwnerData['lastName']}",
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 24),
+                ),
+                SizedBox(height: 24),
 
-          buildSectionHeader("Mess Details"),
-          Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 2,
-            shadowColor: Colors.black.withOpacity(0.1),
-            child: Column(
-              children: [
-                _buildInfoTile(
-                  icon: Icons.location_on_outlined,
-                  title: "Address",
-                  subtitle: widget.messOwnerData['mess']['address'],
-                ),
-                _buildInfoTile(
-                  icon: Icons.phone_outlined,
-                  title: "Contact",
-                  subtitle:
-                      "+91 ${widget.messOwnerData['mess']['messPhoneNo']}",
-                ),
-                _buildInfoTile(
-                    icon: Icons.email_outlined,
-                    title: "Email",
-                    subtitle: widget.messOwnerData['email']),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          buildSectionHeader("Actions"),
-          Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            elevation: 2,
-            shadowColor: Colors.black.withOpacity(0.1),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.edit_outlined),
-                  title: const Text("Edit Profile"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    // TODO: Navigate to an Edit Profile screen
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.settings_outlined),
-                  title: const Text("Settings"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    // TODO: Navigate to a Settings screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (builder) => MessOwnerSettingsPage(
-                          mfaEnabled: widget.messOwnerData['mfaEnabled'],
-                          email: widget.messOwnerData['email'],
-                          idToken: widget.idToken,
-                          responseBody: widget.messOwnerData,
-                        ),
+                buildSectionHeader("Mess Details"),
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  child: Column(
+                    children: [
+                      _buildInfoTile(
+                        icon: Icons.location_on_outlined,
+                        title: "Address",
+                        subtitle: messOwnerData['mess']['address'],
                       ),
-                    );
-                  },
+                      _buildInfoTile(
+                        icon: Icons.phone_outlined,
+                        title: "Contact",
+                        subtitle: "+91 ${messOwnerData['mess']['messPhoneNo']}",
+                      ),
+                      _buildInfoTile(
+                          icon: Icons.email_outlined,
+                          title: "Email",
+                          subtitle: messOwnerData['email']),
+                    ],
+                  ),
                 ),
-                ListTile(
-                  leading: Icon(Icons.logout, color: Colors.red.shade700),
-                  title: Text("Logout",
-                      style: TextStyle(
-                          color: Colors.red.shade700,
-                          fontWeight: FontWeight.w600)),
-                  onTap: () => _logout(context),
-                ),
+                const SizedBox(height: 24),
+
+                buildSectionHeader("Actions"),
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.1),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.edit_outlined),
+                        title: const Text("Edit Profile"),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          // TODO: Navigate to an Edit Profile screen
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.settings_outlined),
+                        title: const Text("Settings"),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          // TODO: Navigate to a Settings screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (builder) => MessOwnerSettingsPage(
+                                mfaEnabled: messOwnerData['mfaEnabled'],
+                                email: messOwnerData['email'],
+                                idToken: widget.idToken,
+                                responseBody: messOwnerData,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.logout, color: Colors.red.shade700),
+                        title: Text("Logout",
+                            style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontWeight: FontWeight.w600)),
+                        onTap: () => _logout(context),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
-          )
-        ],
-      ),
+          );
+        }
+      },
     );
+  }
+
+  Future<void> messData() async {
+    String? messData = await getMessData();
+    while (messData == null) {
+      messData = await getMessData();
+    }
+    messOwnerData = jsonDecode(messData);
   }
 
   Widget _buildInfoTile(
