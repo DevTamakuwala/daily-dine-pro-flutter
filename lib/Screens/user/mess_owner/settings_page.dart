@@ -123,19 +123,15 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
                                                         from: "Disable"),
                                               ),
                                             );
-                                            // setState(() {
-                                              isAvailable = false;
-                                              isLoading = false;
-                                            // });
+                                            isAvailable = false;
+                                            isLoading = false;
                                           },
                                           child: Text("Yes"),
                                         ),
                                         ElevatedButton(
                                           onPressed: () {
-                                            // setState(() {
-                                              isAvailable = true;
-                                              isLoading = false;
-                                            // });
+                                            isAvailable = true;
+                                            isLoading = false;
                                             Navigator.pop(context);
                                           },
                                           child: Text("No"),
@@ -200,6 +196,7 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
           ),
         ),
       );
+      setState(() {});
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -204,6 +204,19 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
     );
 
     if (response.statusCode == 200) {
+      String? messData = await getMessData();
+      while(messData == null){
+        messData = await getMessData();
+      }
+      Map<String, dynamic> messDataJson = jsonDecode(messData!);
+
+      messDataJson["mfaEnabled"] = true;
+      messDataJson["mfaSecret"] = null;
+      messDataJson["backupCodes"] = [];
+
+      print(messDataJson);
+
+      await saveMessData(jsonEncode(messData));
       // If this is the initial setup, navigate to the backup codes screen.
       if (widget.isInitialSetup) {
         Navigator.of(context)..pop()..pop();
@@ -227,13 +240,15 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
         Map<String, dynamic> messDataJson = jsonDecode(messData!);
 
         messDataJson["mfaEnabled"] = true;
+        messDataJson["mfaSecret"] = null;
+        messDataJson["backupCodes"] = [];
 
         print(messDataJson);
 
         await saveMessData(jsonEncode(messData));
         Navigator.pop(context);
         if(userRole == UserType.MessOwner.name) {
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (builder) =>
@@ -295,6 +310,8 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
       Map<String, dynamic> messDataJson = jsonDecode(messData);
 
       messDataJson["mfaEnabled"] = false;
+      messDataJson["mfaSecret"] = null;
+      messDataJson["backupCodes"] = [];
 
       print(messDataJson);
 
