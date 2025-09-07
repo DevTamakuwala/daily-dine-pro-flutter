@@ -2,12 +2,17 @@
 // Handles both initial setup verification and ongoing login verification
 import 'dart:convert';
 
-import 'package:dailydine/Screens/Auth/two_factor/backup_code_screen.dart';
+
+import 'package:dailydine/Screens/user/admin/admin_dashboard_screen.dart';
+import 'package:dailydine/Screens/user/mess_owner/mess_dashboard_screen.dart';
+import 'package:dailydine/enums/user_types.dart';
+import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../credentials/api_url.dart';
 import '../../user/customer/customer_dashboard_screen.dart';
+import 'backup_code_screen.dart';
 
 class VerifyTwoFactorScreen extends StatefulWidget {
   // Authentication token for secure API calls
@@ -18,13 +23,16 @@ class VerifyTwoFactorScreen extends StatefulWidget {
   final bool isInitialSetup;
   // Response from the MFA setup API containing verification details
   final Map<String, dynamic> responseBody;
-
+  // Determines the source of the navigation to this screen.
+  // It can be "Disable" or other values.
+  final String from;
   const VerifyTwoFactorScreen({
     super.key,
     required this.isInitialSetup,
     required this.idToken,
     required this.email,
     required this.responseBody,
+    required this.from
   });
 
   @override
@@ -171,7 +179,16 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
     );
   }
 
+  // Verifies the provided OTP with the server.
+  // Handles both enabling and disabling MFA based on the 'from' parameter.
   Future<void> verifyOtp(String otp) async {
+    // If the screen was opened to disable MFA, call the disableMFA method.
+    if (widget.from == "Disable") {
+      await disableMFA(widget.email, otp);
+      return;
+    }
+
+    // Otherwise, proceed with the standard OTP verification for enabling MFA or logging in.
     String apiUrl = '${url}mfa/verify';
     final response = await http.post(
       Uri.parse(apiUrl),
@@ -185,9 +202,8 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
       }),
     );
 
-    // Map<String, dynamic> responseBody = jsonDecode(response.body);
-
     if (response.statusCode == 200) {
+      // If this is the initial setup, navigate to the backup codes screen.
       if (widget.isInitialSetup) {
         Navigator.of(context)..pop()..pop();
         Navigator.push(
@@ -195,23 +211,80 @@ class _VerifyTwoFactorScreenState extends State<VerifyTwoFactorScreen> {
           MaterialPageRoute(
             builder: (context) => BackupCodesScreen(
               backupCodes: widget.responseBody["backupCodes"],
+              from: widget.from,
             ),
           ),
         );
       } else {
+        // If it's a regular login, determine the user role and navigate to the appropriate dashboard.
+        String? userRole = await getUserRole();
+        while(userRole == null){
+          userRole = await getUserRole();
+        }
         Navigator.pop(context);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (builder) => CustomerDashboardScreen(
-              token: widget.idToken,
+        if(userRole == UserType.MessOwner.name) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (builder) =>
+                  MessDashboardScreen(
+                    token: widget.idToken,
+                  ),
             ),
-          ),
-        );
+          );
+        } else if(userRole == UserType.Customer.name){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (builder) => CustomerDashboardScreen(
+                token: widget.idToken,
+              ),
+            ),
+          );
+        } else if (userRole == UserType.Admin.name) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (builder) => AdminDashboardScreen(
+                token: widget.idToken,
+              ),
+            ),
+          );
+        }
       }
     } else {
+      // Show an error message if the OTP is incorrect.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Incorrect Code")),
+      );
+    }
+  }
+
+  // Disables Multi-Factor Authentication for the user.
+  Future<void> disableMFA(String email, String otp) async {
+    // API endpoint for disabling MFA.
+    String apiUrl = '${url}mfa/delete';
+    final response = await http.delete(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${widget.idToken}" // Secure token-based authentication
+      },
+      body: jsonEncode({
+        'email': widget.email,
+        'code': otp,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // If successful, go back to the previous screen.
+      Navigator.pop(context);
+    } else {
+      // Show an error message if the server encounters an issue.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+            Text("There is some issue with the server. Try again later.")),
       );
     }
   }

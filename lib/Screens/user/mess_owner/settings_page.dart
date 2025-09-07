@@ -1,9 +1,26 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:dailydine/service/save_shared_preference.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../../../credentials/api_url.dart';
 import '../../../widgets/build_section_header.dart';
+import '../../Auth/two_factor/setup_mfa_screen.dart';
+import '../../Auth/two_factor/verify_two_factor_screen.dart';
 
 class MessOwnerSettingsPage extends StatefulWidget {
-  const MessOwnerSettingsPage({super.key});
+  final bool mfaEnabled;
+  final String email;
+  final Map<String, dynamic> responseBody;
+  final String idToken;
+
+  const MessOwnerSettingsPage(
+      {super.key,
+      required this.mfaEnabled,
+      required this.email,
+      required this.responseBody,
+      required this.idToken});
 
   @override
   State<MessOwnerSettingsPage> createState() => _MessOwnerSettingsPageState();
@@ -13,6 +30,16 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
   // State variable to track the status of the 2FA switch.
   bool isAvailable = true;
   bool isLoading = false;
+
+  void init() {
+    isAvailable = widget.mfaEnabled;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,12 +76,67 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
                     title: const Text("Enable 2FA"),
                     trailing: Switch(
                       value: isAvailable,
-                      onChanged: (value) {
+                      onChanged: (value) async {
                         // Update the state when the switch is toggled.
-                        setState(() {
-                          isAvailable = value;
-                          isLoading = value;
-                        });
+                        if (!widget.mfaEnabled) {
+                          setState(() {
+                            isLoading = true;
+                            isAvailable = true;
+                          });
+                          await setUpMFA(widget.email);
+                        } else {
+                          // await disableMFA(widget.email);
+                          setState(() {
+                            isLoading = false;
+                            isAvailable = false;
+                          });
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("Warning"),
+                                content: Text(
+                                    "Are you sure you want to disable 2 Factor-Authentication ?"),
+                                actions: <Widget>[
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (builder) => VerifyTwoFactorScreen(
+                                              isInitialSetup: false,
+                                              idToken: widget.idToken,
+                                              email: widget.email,
+                                              responseBody: widget.responseBody,
+                                              from: "Disable"),
+                                        ),
+                                      );
+                                      setState(() {
+                                        isAvailable = false;
+                                        isLoading = false;
+                                      });
+                                    },
+                                    child: Text("Yes"),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isAvailable = true;
+                                        isLoading = false;
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("No"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          setState(() {
+                            isLoading = false;
+                          });
+                        }
                       },
                       activeColor: Colors
                           .green, // Green color when the switch is active.
@@ -67,5 +149,49 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
         ],
       ),
     );
+  }
+
+  // Initiates the MFA setup process by calling the backend API
+  Future<void> setUpMFA(String email) async {
+    String? idToken = await getTokenId();
+    while (idToken == null) {
+      idToken = await getTokenId();
+    }
+    // API endpoint for MFA setup initialization
+    String apiUrl = '${url}mfa/setup';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $idToken" // Secure token-based authentication
+      },
+      body: jsonEncode({'email': email}), // User email for MFA association
+    );
+
+    Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        isAvailable = true;
+        isLoading = false;
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SetupMfaScreen(
+            idToken: idToken ?? "",
+            response: responseBody,
+            email: email,
+            from: "Settings",
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text("There is some issue with the server. Try again later.")),
+      );
+    }
   }
 }

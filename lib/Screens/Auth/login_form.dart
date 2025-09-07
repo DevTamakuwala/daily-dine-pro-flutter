@@ -119,10 +119,7 @@ class _LoginformState extends State<LoginForm> {
       }),
     );
 
-    print(response.body);
-
     if (response.statusCode == 302) {
-      print("Status Code 302");
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       String tokenId = responseBody["Token"];
       bool visible = responseBody["Visible"];
@@ -139,14 +136,12 @@ class _LoginformState extends State<LoginForm> {
       // Navigator.pop(context);
       switch (responseBody["UserRole"]) {
         case "MessOwner":
-          print("MessOwner");
           // CHANGE (from git): Added a debug print to log the "Visible" flag
           // received from the backend. Useful for debugging visibility flow.
           // CHANGE: Added explicit handling for when a MessOwner is not visible
           // (e.g., registration incomplete). This branch navigates to
           // RegistrationSuccessfulScreen.
           if (!visible) {
-            print("Not Visible");
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -155,9 +150,7 @@ class _LoginformState extends State<LoginForm> {
               ),
             );
           } else if (visible) {
-            print("Visible");
             if (!responseBody["MfaEnable"]) {
-              print("MFA Not enabled");
               Navigator.pop(context);
               Navigator.push(
                 context,
@@ -173,7 +166,8 @@ class _LoginformState extends State<LoginForm> {
                       isInitialSetup: false,
                       idToken: tokenId,
                       email: email,
-                      responseBody: responseBody),
+                      responseBody: responseBody,
+                      from: "Login"),
                 ),
               );
             }
@@ -190,6 +184,7 @@ class _LoginformState extends State<LoginForm> {
                       isInitialSetup: false,
                       idToken: tokenId,
                       email: email,
+                      from: "Login",
                       responseBody: responseBody),
                 ),
               );
@@ -226,6 +221,7 @@ class _LoginformState extends State<LoginForm> {
                       isInitialSetup: false,
                       idToken: tokenId,
                       email: email,
+                      from: "Login",
                       responseBody: responseBody),
                 ),
               );

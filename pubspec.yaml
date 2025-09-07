@@ -64,8 +64,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/DailyDinePro.png
-    - assets/DailyDinePro-removebg-preview.png
+    - assets/Logo/DailyDinePro.png
+    - assets/Logo/DailyDinePro-removebg-preview.png
+    - assets/Animation/DailyDinePro.gif
     - assets/food.png
     - assets/food2.png
     - assets/food3.jpg

@@ -7,8 +7,9 @@ import 'package:intl/intl.dart';
 class MenuManagementScreen extends StatefulWidget {
   // Optional date to pre-select when opening the screen.
   final DateTime? menuDate;
+  final Map<dynamic, dynamic> messOwnerData;
 
-  const MenuManagementScreen({super.key, this.menuDate});
+  const MenuManagementScreen({super.key, this.menuDate, required this.messOwnerData});
 
   @override
   State<MenuManagementScreen> createState() => _MenuManagementScreenState();
@@ -163,8 +164,8 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)), // Allow selecting dates from one year ago.
-      lastDate: DateTime.now().add(const Duration(days: 365)),    // Allow selecting dates up to one year in the future.
+      firstDate: _selectedDate, // Allow selecting dates from one year ago.
+      lastDate: DateTime.now().add(const Duration(days: 7)),    // Allow selecting dates up to one year in the future.
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -443,13 +444,13 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                 ? Column( // Display menu items if set.
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("B: ${menu?['breakfast'] ?? 'N/A'}", // Added null check for safety
+                Text("B: ${menu['breakfast'] ?? 'N/A'}", // Added null check for safety
                     overflow: TextOverflow.ellipsis, // Prevent long text overflow.
                     style: const TextStyle(color: Colors.grey)),
-                Text("L: ${menu?['lunch'] ?? 'N/A'}", // Added null check for safety
+                Text("L: ${menu['lunch'] ?? 'N/A'}", // Added null check for safety
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: Colors.grey)),
-                Text("D: ${menu?['dinner'] ?? 'N/A'}", // Added null check for safety
+                Text("D: ${menu['dinner'] ?? 'N/A'}", // Added null check for safety
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(color: Colors.grey)),
               ],
