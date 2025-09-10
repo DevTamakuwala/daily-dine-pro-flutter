@@ -55,7 +55,7 @@ class _MessDashboardScreenState extends State<MessDashboardScreen> {
       userId = await getUserId();
       token = await getTokenId();
     }
-    String apiUrl = '${url}mess/$userId';
+    String apiUrl = '${url}user/$userId';
     final response = await http.get(
       Uri.parse(apiUrl),
       headers: {
