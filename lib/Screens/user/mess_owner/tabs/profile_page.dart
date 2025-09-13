@@ -39,13 +39,13 @@ class _ProfilePageState extends State<ProfilePage> {
     return FutureBuilder(
       future: messData(),
       builder: (context, snapshot) {
-        String avatar =
-            "${messOwnerData['firstName'][0]}${messOwnerData['lastName'][0]}";
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         } else {
+          String avatar =
+              "${messOwnerData['firstName'][0]}${messOwnerData['lastName'][0]}";
           return Scaffold(
             backgroundColor: Colors.grey[100],
             appBar: AppBar(
