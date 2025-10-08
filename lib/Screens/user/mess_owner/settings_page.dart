@@ -30,6 +30,8 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
   // State variable to track the status of the 2FA switch.
   bool isAvailable = true;
   bool isLoading = false;
+  bool _isDarkMode = false;
+  bool _areNotificationsEnabled = true;
 
   Future<void> init() async {
     String? messData = await getMessData();
@@ -150,7 +152,61 @@ class _MessOwnerSettingsPageState extends State<MessOwnerSettingsPage> {
                           ),
                         ),
                       ],
-                    )
+                    ),
+                    buildSectionHeader("Appearance"),
+                    Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 2,
+                      child: SwitchListTile(
+                        title: const Text("Dark Mode"),
+                        secondary: const Icon(Icons.dark_mode_outlined),
+                        value: _isDarkMode,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _isDarkMode = value;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Theme switching requires a state management solution.")),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // --- NOTIFICATIONS SECTION ---
+                    buildSectionHeader("Notifications"),
+                    Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 2,
+                      child: SwitchListTile(
+                        title: const Text("Enable Notifications"),
+                        secondary: const Icon(Icons.notifications_outlined),
+                        value: _areNotificationsEnabled,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _areNotificationsEnabled = value;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // --- SUPPORT SECTION ---
+                    buildSectionHeader("Support"),
+                    Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 2,
+                      child: ListTile(
+                        leading: const Icon(Icons.feedback_outlined),
+                        title: const Text("Send Feedback"),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Feedback screen not yet implemented.")),
+                          );
+                        },
+                      ),
+                    ),
+
                   ],
                 )
               ],

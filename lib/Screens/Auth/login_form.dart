@@ -35,6 +35,7 @@ class _LoginformState extends State<LoginForm> {
   final TextEditingController _loginPasswordController =
       TextEditingController();
   bool isLoading = false;
+  bool _isPasswordObscured = true;
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +56,19 @@ class _LoginformState extends State<LoginForm> {
             icon: Icons.email_outlined),
         const SizedBox(height: 16),
         buildTextFormField(
-            controller: _loginPasswordController,
-            label: "Password",
-            icon: Icons.lock_outline,
-            obscureText: true),
+          controller: _loginPasswordController,
+          label: "Password",
+          icon: Icons.lock_outline,
+          obscureText: _isPasswordObscured, // Controls visibility
+          suffixIcon: _isPasswordObscured
+              ? Icons.visibility_off
+              : Icons.visibility,
+          onSuffixIconPressed: () {
+            setState(() {
+              _isPasswordObscured = !_isPasswordObscured;
+            });
+          },
+        ),
         const SizedBox(height: 24),
         buildSubmitButton(
             label: "MessDashboardScreen",
@@ -261,18 +271,31 @@ class _LoginformState extends State<LoginForm> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              //builder: (builder) => Hello(token: response.body),
               builder: (builder) =>
                   AuthScreen(screenSize: MediaQuery.of(context).size),
             ),
           );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(response.body),
-        ),
-      );
+      if(mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Login Failed"),
+              content: Text(response.body), // Shows the error message from the server
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Dismiss the dialog
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 }

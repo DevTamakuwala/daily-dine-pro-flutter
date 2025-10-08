@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../service/save_shared_preference.dart';
 import '../../../../widgets/build_section_header.dart';
+import '../../../change_password_screen.dart';
+import '../EditProfileScreen.dart';
 
 class ProfilePage extends StatefulWidget {
   final String idToken;
@@ -132,7 +134,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: const Text("Edit Profile"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {
-                          // TODO: Navigate to an Edit Profile screen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EditProfileScreen(),
+                            ),
+                          );
                         },
                       ),
                       ListTile(
@@ -150,6 +157,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                 idToken: widget.idToken,
                                 responseBody: messOwnerData,
                               ),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.lock_outline),
+                        title: const Text("Change Password"),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChangePasswordScreen(),
                             ),
                           );
                         },
