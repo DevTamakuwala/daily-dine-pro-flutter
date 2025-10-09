@@ -19,7 +19,7 @@ jobs:
 
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: '3.13.0' # A Flutter version that uses Dart 3+
+        flutter-version: '3.35.6' # A Flutter version that uses Dart 3+
         channel: 'stable'
 
     - name: Install dependencies
