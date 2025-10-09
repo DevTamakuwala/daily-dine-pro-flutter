@@ -26,7 +26,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.6' # Using a specific stable version
+          flutter-version: '3.35.6'
           channel: 'stable'
 
       - name: Install dependencies
@@ -38,23 +38,14 @@ jobs:
       - name: Build App Bundle
         run: flutter build appbundle
 
-  create_pr:
-    # This job will ONLY run if the 'build' job is successful
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Create Pull Request
-        uses: repo-sync/pull-request@v2
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
         with:
-          # This is an automatically generated token
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # The branch in the main repository to merge into
-          pr_target_branch: main
-          # The title of your pull request
-          pr_title: "Automated PR from successful build"
-          # A description for your pull request
-          pr_body: "This pull request was automatically generated after a successful build and test run."
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload App Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-appbundle
+          path: build/app/outputs/bundle/release/app-release.aab
