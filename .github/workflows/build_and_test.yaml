@@ -1,0 +1,60 @@
+# .github/workflows/build_and_test.yaml
+name: Build, Test, and Create PR
+
+on:
+  push:
+    branches:
+      - '*'      # Runs on pushes to any branch in your fork
+  pull_request:
+    branches:
+      - '*'      # Also runs on pull requests to any branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.6' # Using a specific stable version
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk
+
+      - name: Build App Bundle
+        run: flutter build appbundle
+
+  create_pr:
+    # This job will ONLY run if the 'build' job is successful
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        uses: repo-sync/pull-request@v2
+        with:
+          # This is an automatically generated token
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # The branch in the main repository to merge into
+          pr_target_branch: main
+          # The title of your pull request
+          pr_title: "Automated PR from successful build"
+          # A description for your pull request
+          pr_body: "This pull request was automatically generated after a successful build and test run."
