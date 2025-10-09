@@ -49,21 +49,3 @@ jobs:
         with:
           name: release-appbundle
           path: build/app/outputs/bundle/release/app-release.aab
-
-  create_pr:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Create Pull Request
-        uses: repo-sync/pull-request@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          destination_branch: main
-          # --- KEY CHANGES ARE HERE ---
-          # The PR title will be the name of the source branch (e.g., "feature/new-login-screen")
-          # The PR body will be the message from your last commit
-          pr_body: ${{ github.event.head_commit.message }}
