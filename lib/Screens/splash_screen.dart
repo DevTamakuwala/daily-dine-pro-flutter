@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/user/admin/admin_dashboard_screen.dart';
+import 'package:dailydine/Screens/user/customer/CustomerHomeScreen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/foundation.dart';
@@ -106,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }
         return MessDashboardScreen(token: tokenId);
       } else if (UserType.Customer.name == responseBody["UserRole"]) {
-        return CustomerDashboardScreen(token: tokenId);
+        return CustomerHomeScreen(token: "");
       } else if (UserType.Admin.name == responseBody["UserRole"]) {
         return AdminDashboardScreen(token: tokenId);
       } else {
