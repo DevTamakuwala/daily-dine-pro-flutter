@@ -15,7 +15,6 @@ import '../../widgets/build_flip_button.dart';
 import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
 import '../user/admin/admin_dashboard_screen.dart';
-import '../user/customer/CustomerHomeScreen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
 import '../user/mess_owner/tabs/menu_management_screen.dart';
 import 'forgot_password_screen.dart';
@@ -79,7 +78,7 @@ class _LoginformState extends State<LoginForm> {
                 MaterialPageRoute(
                   //builder: (context) => CustomerDashboardScreen()));
                   //builder: (context) => VerifyMessDetailsScreen(),
-                  builder: (context) => CustomerDashboardScreen(token: '',
+                  builder: (context) => ProfilePage(
                   ),
                 ),
               );
@@ -208,7 +207,7 @@ class _LoginformState extends State<LoginForm> {
                 context,
                 MaterialPageRoute(
                   //builder: (builder) => Hello(token: response.body),
-                  builder: (builder) => CustomerHomeScreen(token: '',),
+                  builder: (builder) => CustomerDashboardScreen(token: tokenId),
                 ),
               );
             }
@@ -260,6 +259,13 @@ class _LoginformState extends State<LoginForm> {
             );
           }
 
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     //builder: (builder) => Hello(token: response.body),
+        //     builder: (builder) => MessDashboardScreen(token: tokenId),
+        //   ),
+        // );
 
         default:
           Navigator.push(
