@@ -2,7 +2,6 @@ import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Import the new, separate screen files for each tab
 import 'tabs/admin_home_screen.dart';
 import 'tabs/update_mess_data_screen.dart';
 import 'tabs/verify_mess_owner_screen.dart';
@@ -80,11 +79,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             activeIcon: Icon(Icons.store_mall_directory),
             label: 'Messes',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_location_alt_outlined),
-            activeIcon: Icon(Icons.add_location_alt),
-            label: 'Locations',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.add_location_alt_outlined),
+          //   activeIcon: Icon(Icons.add_location_alt),
+          //   label: 'Locations',
+          // ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.indigo[700],

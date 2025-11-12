@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
 import 'package:dailydine/Screens/Auth/two_factor/verify_two_factor_screen.dart';
-import 'package:dailydine/Screens/profile_page.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
@@ -56,10 +55,10 @@ class _LoginformState extends State<LoginForm> {
           controller: _loginPasswordController,
           label: "Password",
           icon: Icons.lock_outline,
-          obscureText: _isPasswordObscured, // Controls visibility
-          suffixIcon: _isPasswordObscured
-              ? Icons.visibility_off
-              : Icons.visibility,
+          obscureText: _isPasswordObscured,
+          // Controls visibility
+          suffixIcon:
+              _isPasswordObscured ? Icons.visibility_off : Icons.visibility,
           onSuffixIconPressed: () {
             setState(() {
               _isPasswordObscured = !_isPasswordObscured;
@@ -67,19 +66,19 @@ class _LoginformState extends State<LoginForm> {
           },
         ),
         const SizedBox(height: 24),
-        buildSubmitButton(
-            label: "MessDashboardScreen",
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  //builder: (context) => CustomerDashboardScreen()));
-                  //builder: (context) => VerifyMessDetailsScreen(),
-                  builder: (context) => ProfilePage(),
-                ),
-              );
-            }),
-        const SizedBox(height: 15),
+        // buildSubmitButton(
+        //     label: "MessDashboardScreen",
+        //     onPressed: () async {
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(
+        //           //builder: (context) => CustomerDashboardScreen()));
+        //           //builder: (context) => VerifyMessDetailsScreen(),
+        //           builder: (context) => ProfilePage(),
+        //         ),
+        //       );
+        //     }),
+        // const SizedBox(height: 15),
         buildSubmitButton(
             label: "Login",
             onPressed: () async {
@@ -116,6 +115,7 @@ class _LoginformState extends State<LoginForm> {
       String email, String password, BuildContext context) async {
     String encryptedPassword = await encrypt(password);
     String apiUrl = '${url}auth/login';
+    print(url);
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {
@@ -273,13 +273,14 @@ class _LoginformState extends State<LoginForm> {
           );
       }
     } else {
-      if(mounted) {
+      if (mounted) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text("Login Failed"),
-              content: Text(response.body), // Shows the error message from the server
+              content: Text(response.body),
+              // Shows the error message from the server
               actions: <Widget>[
                 TextButton(
                   child: const Text("OK"),
