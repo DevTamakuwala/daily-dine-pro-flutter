@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Auth/auth_screen.dart';
-
 // Import all the new, separate screen files
 import 'CustomerHomeScreen.dart';
 import 'CustomerProfileScreen.dart';
