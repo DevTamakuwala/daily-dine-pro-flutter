@@ -12,8 +12,9 @@ import 'approval_successful_screen.dart';
 // A detailed screen for an admin to verify a mess owner's details and location.
 class VerifyMessDetailsScreen extends StatefulWidget {
   final int userId;
+  final String messOwnerName, email, phoneNo;
 
-  const VerifyMessDetailsScreen({super.key, required this.userId});
+  const VerifyMessDetailsScreen({super.key, required this.userId, required this.messOwnerName, required this.email, required this.phoneNo});
 
   @override
   State<VerifyMessDetailsScreen> createState() =>
@@ -45,13 +46,7 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
   late TextEditingController _zipCodeController;
 
   // --- Mock Data (will be loaded into controllers) ---
-  Map<String, dynamic> _messOwnerData = {
-    "messName": "Shree Krishna Mess",
-    "ownerName": "Rajesh Gupta",
-    "address": "123, Sunshine Apartments, Kothrud, Pune, Maharashtra 411038",
-    "phone": "+91 98765 43210",
-    "email": "rajesh.gupta@example.com",
-  };
+  Map<String, dynamic> _messOwnerData = {};
 
   bool fetched = false;
 
@@ -448,7 +443,6 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
                 ? () async {
                     bool isApproved = await handleApprove(
                         _latitudeController.text, _longitudeController.text);
-                    // TODO: Implement your API call to approve the mess owner here.
                     // On success, navigate to the new screen.
                     if(isApproved){
                       Navigator.pop(context);
@@ -622,24 +616,24 @@ class _VerifyMessDetailsScreenState extends State<VerifyMessDetailsScreen> {
   }
 
   void init() {
-    establishmentDate = _messOwnerData['mess']['establisheDate'];
+    establishmentDate = _messOwnerData['establisheDate'];
     _messNameController =
-        TextEditingController(text: _messOwnerData['mess']['messName']);
+        TextEditingController(text: _messOwnerData['messName']);
     _ownerNameController = TextEditingController(
-        text: "${_messOwnerData['firstName']} ${_messOwnerData['lastName']}");
+        text: widget.messOwnerName);
     _addressController =
-        TextEditingController(text: _messOwnerData['mess']['address']);
+        TextEditingController(text: _messOwnerData['address']);
     _phoneController = TextEditingController(
-        text: _messOwnerData['mess']['messPhoneNo'].toString());
+        text: _messOwnerData['messPhoneNo'].toString());
     _ownerPhoneController =
-        TextEditingController(text: _messOwnerData['phoneNo'].toString());
-    _emailController = TextEditingController(text: _messOwnerData['email']);
+        TextEditingController(text: widget.phoneNo);
+    _emailController = TextEditingController(text: widget.email);
     _cityController =
-        TextEditingController(text: _messOwnerData['mess']['city']);
+        TextEditingController(text: _messOwnerData['city']);
     _stateController =
-        TextEditingController(text: _messOwnerData['mess']['state']);
+        TextEditingController(text: _messOwnerData['state']);
     _zipCodeController =
-        TextEditingController(text: _messOwnerData['mess']['zipCode']);
+        TextEditingController(text: _messOwnerData['zipCode']);
   }
 
   Future<void> _fetchCityStateFromZipCode(String zipCode) async {
