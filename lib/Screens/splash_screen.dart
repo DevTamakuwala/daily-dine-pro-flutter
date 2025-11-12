@@ -59,6 +59,8 @@ class _SplashScreenState extends State<SplashScreen> {
       // Hello(token: token)
     }
 
+    if(!mounted) return;
+
     // Use the mounted check for safety before navigating
     Navigator.pop(context);
     Navigator.push(

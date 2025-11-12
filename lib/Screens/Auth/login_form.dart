@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
 import 'package:dailydine/Screens/Auth/two_factor/verify_two_factor_screen.dart';
-import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/Screens/profile_page.dart';
+import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +16,7 @@ import '../../widgets/build_submit_button.dart';
 import '../../widgets/build_text_form_field.dart';
 import '../user/admin/admin_dashboard_screen.dart';
 import '../user/mess_owner/mess_dashboard_screen.dart';
-import '../user/mess_owner/tabs/menu_management_screen.dart';
 import 'forgot_password_screen.dart';
-
-
 
 class LoginForm extends StatefulWidget {
   final VoidCallback onFlip;
@@ -32,7 +29,8 @@ class LoginForm extends StatefulWidget {
 
 class _LoginformState extends State<LoginForm> {
   final TextEditingController _loginEmailController = TextEditingController();
-  final TextEditingController _loginPasswordController = TextEditingController();
+  final TextEditingController _loginPasswordController =
+      TextEditingController();
   bool isLoading = false;
   bool _isPasswordObscured = true;
 
@@ -77,7 +75,7 @@ class _LoginformState extends State<LoginForm> {
                 MaterialPageRoute(
                   //builder: (context) => CustomerDashboardScreen()));
                   //builder: (context) => VerifyMessDetailsScreen(),
-                  builder: (context) => CustomerDashboardScreen(token: '',),
+                  builder: (context) => ProfilePage(),
                 ),
               );
             }),
