@@ -5,8 +5,6 @@ import '../../Auth/auth_screen.dart';
 
 // Import all the new, separate screen files
 import 'CustomerHomeScreen.dart';
-import 'CustomerOrdersScreen.dart';
-import 'CustomerPaymentsScreen.dart';
 import 'CustomerProfileScreen.dart';
 
 class CustomerDashboardScreen extends StatefulWidget {
@@ -24,8 +22,6 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
   // List of the separate page widgets
   static const List<Widget> _widgetOptions = <Widget>[
     CustomerHomeScreen(token: '',),
-    CustomerOrdersScreen(),
-    CustomerPaymentsScreen(),
     CustomerProfileScreen(),
   ];
 
@@ -47,16 +43,6 @@ class _CustomerDashboardScreenState extends State<CustomerDashboardScreen> {
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
             label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_outlined),
-            activeIcon: Icon(Icons.receipt_long),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.payment_outlined),
-            activeIcon: Icon(Icons.payment),
-            label: 'Payments',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

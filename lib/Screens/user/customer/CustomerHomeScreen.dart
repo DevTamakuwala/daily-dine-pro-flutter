@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'nearby_messes_screen.dart';
+
 class CustomerHomeScreen extends StatelessWidget {
   const CustomerHomeScreen({super.key, required String token});
 
@@ -82,7 +84,14 @@ class CustomerHomeScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.location_on),
                 label: const Text("Find Mess in 500 Meters Radius"),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>NearbyMessesScreen(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: Colors.orange.shade700,

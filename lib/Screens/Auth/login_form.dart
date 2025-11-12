@@ -32,8 +32,7 @@ class LoginForm extends StatefulWidget {
 
 class _LoginformState extends State<LoginForm> {
   final TextEditingController _loginEmailController = TextEditingController();
-  final TextEditingController _loginPasswordController =
-      TextEditingController();
+  final TextEditingController _loginPasswordController = TextEditingController();
   bool isLoading = false;
   bool _isPasswordObscured = true;
 
@@ -78,8 +77,7 @@ class _LoginformState extends State<LoginForm> {
                 MaterialPageRoute(
                   //builder: (context) => CustomerDashboardScreen()));
                   //builder: (context) => VerifyMessDetailsScreen(),
-                  builder: (context) => ProfilePage(
-                  ),
+                  builder: (context) => CustomerDashboardScreen(token: '',),
                 ),
               );
             }),
