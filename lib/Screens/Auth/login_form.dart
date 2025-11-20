@@ -6,7 +6,6 @@ import 'package:dailydine/Screens/Auth/two_factor/verify_two_factor_screen.dart'
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -170,7 +169,6 @@ class _LoginformState extends State<LoginForm> {
           }
 
         case "Customer":
-          print(visible);
           if (visible) {
             if (responseBody["MfaEnable"]) {
               // Navigator.pop(context);
