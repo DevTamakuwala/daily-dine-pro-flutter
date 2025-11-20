@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../service/save_shared_preference.dart';
 import '../../../../widgets/build_section_header.dart';
 import '../../../change_password_screen.dart';
-import '../EditProfileScreen.dart';
+import '../edit_profile_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   final String idToken;
@@ -198,6 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
     while (messData == null) {
       messData = await getMessData();
     }
+    print(jsonDecode(messData)["mess"]);
     messOwnerData = jsonDecode(messData);
   }
 

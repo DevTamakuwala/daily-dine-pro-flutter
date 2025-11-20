@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+// TODO: Weekly menu adding
 class WeeklyMenuView extends StatefulWidget {
   // Callback to tell the parent screen to switch to the daily view for a specific date.
   final Function(DateTime date) onEditDay;

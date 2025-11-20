@@ -39,11 +39,11 @@ dependencies:
   pointycastle: ^3.7.2
   intl: ^0.18.1
   geolocator: ^10.1.0
+  google_maps_flutter: ^2.14.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  google_maps_flutter: ^2.7.0
 
 
 

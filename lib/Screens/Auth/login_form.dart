@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/Auth/registration_successful_screen.dart';
 import 'package:dailydine/Screens/Auth/two_factor/verify_two_factor_screen.dart';
-import 'package:dailydine/Screens/profile_page.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/encryption/encrypt_text.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,29 +56,16 @@ class _LoginformState extends State<LoginForm> {
           controller: _loginPasswordController,
           label: "Password",
           icon: Icons.lock_outline,
-          obscureText: _isPasswordObscured, // Controls visibility
-          suffixIcon: _isPasswordObscured
-              ? Icons.visibility_off
-              : Icons.visibility,
+          obscureText: _isPasswordObscured,
+          // Controls visibility
+          suffixIcon:
+              _isPasswordObscured ? Icons.visibility_off : Icons.visibility,
           onSuffixIconPressed: () {
             setState(() {
               _isPasswordObscured = !_isPasswordObscured;
             });
           },
         ),
-        const SizedBox(height: 24),
-        buildSubmitButton(
-            label: "MessDashboardScreen",
-            onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  //builder: (context) => CustomerDashboardScreen()));
-                  //builder: (context) => VerifyMessDetailsScreen(),
-                  builder: (context) => ProfilePage(),
-                ),
-              );
-            }),
         const SizedBox(height: 15),
         buildSubmitButton(
             label: "Login",
@@ -183,6 +170,7 @@ class _LoginformState extends State<LoginForm> {
           }
 
         case "Customer":
+          print(visible);
           if (visible) {
             if (responseBody["MfaEnable"]) {
               // Navigator.pop(context);
@@ -202,7 +190,6 @@ class _LoginformState extends State<LoginForm> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  //builder: (builder) => Hello(token: response.body),
                   builder: (builder) => CustomerDashboardScreen(token: tokenId),
                 ),
               );
@@ -273,13 +260,14 @@ class _LoginformState extends State<LoginForm> {
           );
       }
     } else {
-      if(mounted) {
+      if (mounted) {
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: const Text("Login Failed"),
-              content: Text(response.body), // Shows the error message from the server
+              content: Text(response.body),
+              // Shows the error message from the server
               actions: <Widget>[
                 TextButton(
                   child: const Text("OK"),

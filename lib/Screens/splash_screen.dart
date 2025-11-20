@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dailydine/Screens/Auth/auth_screen.dart';
 import 'package:dailydine/Screens/user/admin/admin_dashboard_screen.dart';
-import 'package:dailydine/Screens/user/customer/CustomerHomeScreen.dart';
 import 'package:dailydine/Screens/user/customer/customer_dashboard_screen.dart';
 import 'package:dailydine/service/save_shared_preference.dart';
 import 'package:flutter/foundation.dart';
@@ -59,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Hello(token: token)
     }
 
-    if(!mounted) return;
+    if (!mounted) return;
 
     // Use the mounted check for safety before navigating
     Navigator.pop(context);
@@ -93,7 +92,6 @@ class _SplashScreenState extends State<SplashScreen> {
       }),
     );
 
-
     if (response.statusCode == 302) {
       Map<String, dynamic> responseBody = jsonDecode(response.body);
       String tokenId = responseBody["Token"];
@@ -109,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }
         return MessDashboardScreen(token: tokenId);
       } else if (UserType.Customer.name == responseBody["UserRole"]) {
-        return CustomerHomeScreen(token: "");
+        return CustomerDashboardScreen(token: tokenId);
       } else if (UserType.Admin.name == responseBody["UserRole"]) {
         return AdminDashboardScreen(token: tokenId);
       } else {
@@ -132,7 +130,8 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/Animation/DailyDinePro.gif", width: 300, height: 300),
+            Image.asset("assets/Animation/DailyDinePro.gif",
+                width: 300, height: 300),
           ],
         ),
       ),
